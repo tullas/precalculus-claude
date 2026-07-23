@@ -104,3 +104,14 @@ function renderOrbit() {
 
 renderSectorGrid();
 renderOrbit();
+
+// If the person completes a unit and hits the browser Back button to
+// return here, some browsers restore this page from the back/forward
+// cache (bfcache) instead of re-running this script — which would show
+// a stale XP/badge snapshot from before they played. `pageshow` fires on
+// both a fresh load and a bfcache restore, so re-rendering there keeps
+// the dashboard honest either way.
+window.addEventListener("pageshow", () => {
+  renderSectorGrid();
+  renderOrbit();
+});

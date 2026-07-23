@@ -84,13 +84,7 @@ function stubAnimationFrame(window) {
   window.cancelAnimationFrame = (id) => clearImmediate(id);
 }
 
-/**
- * Load a unit's index.html in a fresh jsdom window and wait for its
- * synchronous <script> tags (progress.js, graph-engine.js, lab.js, ...) to
- * have run.
- */
-export async function loadUnit(unitDirName) {
-  const file = path.join(REPO_ROOT, "units", unitDirName, "index.html");
+async function loadPage(file, baseUrl, label) {
   const errors = [];
   const virtualConsole = new VirtualConsole();
   virtualConsole.on("jsdomError", (e) => {
@@ -101,7 +95,7 @@ export async function loadUnit(unitDirName) {
   });
 
   const dom = await JSDOM.fromFile(file, {
-    url: `file://${path.join(REPO_ROOT, "units", unitDirName)}/`,
+    url: baseUrl,
     resources: { interceptors: [blockNonLocal] },
     runScripts: "dangerously",
     pretendToBeVisual: true,
@@ -117,12 +111,28 @@ export async function loadUnit(unitDirName) {
   const { window } = dom;
   if (window.document.readyState !== "complete") {
     await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error(`${unitDirName}: timed out waiting for window 'load'`)), 5000);
+      const timer = setTimeout(() => reject(new Error(`${label}: timed out waiting for window 'load'`)), 5000);
       window.addEventListener("load", () => { clearTimeout(timer); resolve(); });
     });
   }
 
   return { dom, window: dom.window, document: dom.window.document, errors };
+}
+
+/**
+ * Load a unit's index.html in a fresh jsdom window and wait for its
+ * synchronous <script> tags (progress.js, graph-engine.js, lab.js, ...) to
+ * have run.
+ */
+export async function loadUnit(unitDirName) {
+  const file = path.join(REPO_ROOT, "units", unitDirName, "index.html");
+  return loadPage(file, `file://${path.join(REPO_ROOT, "units", unitDirName)}/`, unitDirName);
+}
+
+/** Load the repo root index.html (Mission Control / the sector dashboard). */
+export async function loadRoot() {
+  const file = path.join(REPO_ROOT, "index.html");
+  return loadPage(file, `file://${REPO_ROOT}/`, "root index.html");
 }
 
 /** Dispatch a real 'input' event after setting a slider's value. */
