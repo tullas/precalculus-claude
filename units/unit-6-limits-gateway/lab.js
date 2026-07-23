@@ -23,6 +23,8 @@
 
   let correct = 0;
   let current = SENSORS[0];
+  let zoomMaxAwarded = false; // brief: "Zoom to max on one function" — 10 XP, once
+  const ZOOM_MAX = parseFloat(zoomSlider.max);
 
   function newSensor() {
     current = SENSORS[Math.floor(Math.random() * SENSORS.length)];
@@ -62,7 +64,8 @@
       status.className = "lab__status lab__status--ok";
       if (correct >= 3) {
         Trajectory.awardBadge(UNIT_ID);
-        status.textContent += " Badge earned: Sensor Repaired ★";
+        const bonus = Trajectory.addXP(UNIT_ID, 15);
+        status.textContent += ` +15 bonus XP — total ${bonus.xp} XP. Badge earned: Sensor Repaired ★`;
       }
       setTimeout(() => { newSensor(); render(); }, 1500);
     } else {
@@ -72,10 +75,19 @@
   }
 
   select.addEventListener("change", () => { current = SENSORS[parseInt(select.value, 10)]; render(); });
-  zoomSlider.addEventListener("input", render);
+  zoomSlider.addEventListener("input", () => {
+    render();
+    const zoom = parseFloat(zoomSlider.value);
+    if (!zoomMaxAwarded && zoom >= ZOOM_MAX - 0.001) {
+      zoomMaxAwarded = true;
+      const rec = Trajectory.addXP(UNIT_ID, 10);
+      status.textContent = `Zoomed to max resolution. +10 XP — total ${rec.xp} XP.`;
+      status.className = "lab__status lab__status--ok";
+    }
+  });
   guessSlider.addEventListener("input", render);
   checkBtn.addEventListener("click", checkGuess);
-  newTargetBtn.addEventListener("click", () => { Trajectory.addXP(UNIT_ID, 10); newSensor(); render(); });
+  newTargetBtn.addEventListener("click", () => { newSensor(); render(); });
 
   select.innerHTML = SENSORS.map((s, i) => `<option value="${i}">${s.label}</option>`).join("");
   newSensor();

@@ -136,3 +136,41 @@ test("unit 5: applying rotation + non-uniform scale pays 10 XP once, not on new-
   setSlider(document.getElementById("slider-sy"), 0.7);
   assert.equal(xpFor(window, UNIT_ID), 10, "should not pay again once already awarded");
 });
+
+test("unit 6: zooming to max pays 10 XP once, not on new-target", async () => {
+  const UNIT_ID = "unit-6-limits-gateway";
+  const { document, window } = await loadUnit("unit-6-limits-gateway");
+  const zoomSlider = document.getElementById("slider-zoom");
+
+  click(document.getElementById("new-target-btn"));
+  assert.equal(xpFor(window, UNIT_ID), 0, "new-target click should not pay XP");
+
+  setSlider(zoomSlider, zoomSlider.max);
+  assert.equal(xpFor(window, UNIT_ID), 10, "reaching max zoom should pay 10 XP");
+  setSlider(zoomSlider, 0);
+  setSlider(zoomSlider, zoomSlider.max);
+  assert.equal(xpFor(window, UNIT_ID), 10, "zooming to max again should not pay again");
+});
+
+test("unit 6: the +15 three-estimate bonus is actually paid (not just the badge)", async () => {
+  const UNIT_ID = "unit-6-limits-gateway";
+  const { document, window } = await loadUnit("unit-6-limits-gateway");
+  const guessSlider = document.getElementById("slider-guess");
+  const checkBtn = document.getElementById("check-btn");
+  const status = document.getElementById("status");
+
+  for (let round = 0; round < 3; round++) {
+    const m = document.getElementById("target-brief").textContent.match(/ERROR at x = /);
+    assert.ok(m, `round ${round}: expected the diagnostic brief`);
+    const select = document.getElementById("sensor-select");
+    const limits = [4, 2, 12, 1];
+    const limit = limits[parseInt(select.value, 10)];
+    setSlider(guessSlider, limit);
+    click(checkBtn);
+    assert.match(status.textContent, /^Correct/, `round ${round}: expected a correct estimate`);
+    if (round < 2) await sleep(1700); // lab.js schedules the next sensor via setTimeout(...,1500)
+  }
+
+  assert.match(status.textContent, /\+15 bonus XP/, "the 3rd correct estimate should mention the +15 bonus");
+  assert.equal(xpFor(window, UNIT_ID), 25 * 3 + 15, "total XP should include base rewards plus the bonus");
+});

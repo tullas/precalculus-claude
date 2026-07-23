@@ -138,7 +138,7 @@ coherently across sessions without re-deriving context from scratch.
   axis labels, which also fixes them not lining up); and Unit 2's
   checklist code called `CSS.escape()` for no real reason (swapped for a
   plain `Map` lookup).
-- XP wiring for units 1, 3, 4, 5 now matches their mission briefs
+- XP wiring for units 1, 3, 4, 5, 6 now matches their mission briefs
   literally instead of approximately:
   - Unit 1: "Move each slider once" now pays 10 XP the first time each
     individual slider is touched (was a flat 10 XP on the unrelated
@@ -150,19 +150,31 @@ coherently across sessions without re-deriving context from scratch.
   - Unit 5: "Apply a rotation + non-uniform scale" now pays 10 XP the
     first time `theta != 0` and `sx != sy` hold at once (was tied to
     "new target" instead).
-  - Units 1, 3, 4, 5 also each promised a "+N bonus XP" for 3 correct
+  - Unit 6: "Zoom to max on one function" now pays 10 XP when the zoom
+    slider reaches its max (was tied to "new target" instead).
+  - Units 1, 3, 4, 5, 6 also each promised a "+N bonus XP" for 3 correct
     matches/estimates in their XP table, but only the badge was actually
-    firing — the bonus XP itself was silently never paid. All four now
+    firing — the bonus XP itself was silently never paid. All five now
     pay it. Covered by `tests/xp-actions.test.mjs`.
+- Correctness tests for Units 3 and 6's core math
+  (`tests/unit3-unit6-math.test.mjs`): Unit 3's exponential
+  threshold-crossing formula (accept/reject boundaries and the displayed
+  N(guess) value), and Unit 6's four rational/trig limit sensors (both
+  the near-discontinuity samples converging on the documented limit at
+  max zoom, and the accept/reject judgment). No bugs found — both were
+  already correct — but this closes the "only generic smoke coverage"
+  gap for these two units.
 
 **Known gaps / next up**
 
-- Units 3, 4, 6 are functionally complete against their briefs but haven't
-  had a Unit-2-style "depth pass" (richer failure states, animated
-  feedback, etc.) — candidates for future sessions if that kind of
-  polish is wanted course-wide.
-- `npm test` covers load-without-throwing + input-sweep for all six
-  units, targeted behavior tests for Units 2 and 5, and the XP-wiring
-  fixes for units 1/3/4/5. Units 3, 4, 6 still don't have unit-specific
-  correctness tests for their core math (e.g. Unit 3's
-  threshold-crossing estimate, Unit 6's limit-approach behavior).
+- A Unit-2-style "depth pass" for Units 3, 4, 6 (richer failure states,
+  animated feedback, etc.) is the one item left on the original punch
+  list — everything else noted in earlier entries here has been resolved.
+- `npm test` (25 tests) now has: smoke coverage for all six units,
+  targeted behavior tests for Unit 2's simulator, Unit 5's matrix fix,
+  and XP wiring across units 1/3/4/5/6, plus correctness tests for units
+  3 and 6. Units 1, 4, 5 still only have XP-wiring tests, not core-math
+  correctness tests (Unit 1's curve-matching tolerance, Unit 4's
+  angle-matching tolerance, Unit 5's target-match tolerance) — lower
+  priority since those checks are simple tolerance comparisons rather
+  than derived formulas, but not yet covered.
