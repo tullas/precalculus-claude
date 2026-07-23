@@ -49,20 +49,33 @@ const GraphEngine = (() => {
 
     let queue = [];
 
+    // Target ~10 grid lines/labels per axis regardless of range size. The
+    // grid loop used to always step by 1 unit, which is fine for a [-10,10]
+    // range but becomes a tight loop of hundreds of millions of iterations
+    // for a unit whose range legitimately grows large (e.g. exponential
+    // growth curves) — this keeps grid density bounded and keeps grid
+    // lines aligned with their labels, which previously used a different
+    // (adaptive) step and so didn't visually line up.
+    function niceStep(min, max) {
+      return Math.max(1, Math.round(Math.abs(max - min) / 10)) || 1;
+    }
+
     function drawBase() {
       const w = canvas.clientWidth, h = canvas.clientHeight;
       ctx.fillStyle = config.bg;
       ctx.fillRect(0, 0, w, h);
 
+      const [x0, x1] = config.xRange, [y0, y1] = config.yRange;
+      const stepX = niceStep(x0, x1), stepY = niceStep(y0, y1);
+
       if (config.grid) {
         ctx.strokeStyle = config.gridColor;
         ctx.lineWidth = 1;
-        const [x0, x1] = config.xRange, [y0, y1] = config.yRange;
-        for (let gx = Math.ceil(x0); gx <= x1; gx++) {
+        for (let gx = Math.ceil(x0 / stepX) * stepX; gx <= x1; gx += stepX) {
           const [px] = toPixel(gx, 0);
           ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, h); ctx.stroke();
         }
-        for (let gy = Math.ceil(y0); gy <= y1; gy++) {
+        for (let gy = Math.ceil(y0 / stepY) * stepY; gy <= y1; gy += stepY) {
           const [, py] = toPixel(0, gy);
           ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(w, py); ctx.stroke();
         }
@@ -78,13 +91,12 @@ const GraphEngine = (() => {
       if (config.axisLabels) {
         ctx.fillStyle = config.axisColor;
         ctx.font = "11px JetBrains Mono, monospace";
-        const [x0, x1] = config.xRange, [y0, y1] = config.yRange;
-        for (let gx = Math.ceil(x0); gx <= x1; gx += Math.max(1, Math.round((x1 - x0) / 10))) {
+        for (let gx = Math.ceil(x0 / stepX) * stepX; gx <= x1; gx += stepX) {
           if (gx === 0) continue;
           const [px] = toPixel(gx, 0);
           ctx.fillText(String(gx), px + 2, oy - 4);
         }
-        for (let gy = Math.ceil(y0); gy <= y1; gy += Math.max(1, Math.round((y1 - y0) / 10))) {
+        for (let gy = Math.ceil(y0 / stepY) * stepY; gy <= y1; gy += stepY) {
           if (gy === 0) continue;
           const [, py] = toPixel(0, gy);
           ctx.fillText(String(gy), ox + 4, py - 2);

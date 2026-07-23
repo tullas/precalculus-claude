@@ -126,16 +126,20 @@
 
   // ---------- checklist UI ----------
 
+  const featureRows = new Map(); // featureId -> row element, refreshed each renderChecklist()
+
   function renderChecklist(features) {
     const seen = new Set(features.map((f) => f.id));
     // drop stale flags for features that no longer exist at this slider position
     Object.keys(flags).forEach((id) => { if (!seen.has(id)) delete flags[id]; });
 
+    featureRows.clear();
     checklistItems.innerHTML = "";
     features.forEach((f) => {
       const row = document.createElement("label");
       row.className = "checklist__row";
       row.dataset.featureId = f.id;
+      featureRows.set(f.id, row);
 
       const box = document.createElement("input");
       box.type = "checkbox";
@@ -169,12 +173,12 @@
   }
 
   function clearFeatureRowClass(id) {
-    const row = checklistItems.querySelector(`[data-feature-id="${CSS.escape(id)}"]`);
+    const row = featureRows.get(id);
     if (row) row.classList.remove("checklist__row--ok", "checklist__row--missed");
   }
 
   function markFeatureRow(id, outcome) {
-    const row = checklistItems.querySelector(`[data-feature-id="${CSS.escape(id)}"]`);
+    const row = featureRows.get(id);
     if (!row) return;
     row.classList.remove("checklist__row--ok", "checklist__row--missed");
     row.classList.add(outcome === "ok" ? "checklist__row--ok" : "checklist__row--missed");
