@@ -24,11 +24,16 @@
   let matches = 0;
   let target = null;
 
+  // Rotation-then-scale, composed properly: R(theta) * S(sx, sy).
+  // (The previous version only multiplied the diagonal entries by sx/sy,
+  // which left the off-diagonal terms unscaled — that quietly introduces
+  // shear whenever sx != sy, which is exactly the wrong lesson for a unit
+  // about telling rotation, scale, and shear apart.)
   function matrixOf(p) {
     const c = Math.cos(p.theta), s = Math.sin(p.theta);
     return [
-      [p.sx * c, -s],
-      [s, p.sy * c],
+      [c * p.sx, -s * p.sy],
+      [s * p.sx, c * p.sy],
     ];
   }
 

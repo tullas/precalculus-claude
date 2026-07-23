@@ -94,3 +94,38 @@ shell that wires them together via `assets/js/graph-engine.js`.
 See `docs/curriculum-blueprint.md` for the full pedagogy rationale, the
 gamification economy (XP, badges, mastery gates), and the technical spec for
 `graph-engine.js`.
+
+## Development log
+
+Running notes on what's shipped and what's next, so work continues
+coherently across sessions without re-deriving context from scratch.
+
+**Shipped**
+
+- All six units have a functional lab matching their `mission-brief.md`.
+- Unit 2 (Rollercoaster Engineering): added a Polynomial/Rational track
+  mode toggle, a rational-track renderer (asymptote + hole), a feature
+  checklist the student self-flags before running, and an animated
+  "Run simulator" that rides the track and reacts to the first *unflagged*
+  feature (crossing → no effect, kiss → bounce + fail, asymptote →
+  fly off-screen + fail, hole → vanish/reappear + continue).
+- Unit 5 (CGI Engine Vectors): fixed a matrix-composition bug where
+  non-uniform scale (`sx != sy`) wasn't applied to the off-diagonal terms,
+  which silently introduced shear instead of a clean rotate+scale.
+- Unit 1 (Morphing Machines): removed dead no-op code in the base function.
+
+**Known gaps / next up**
+
+- Units 1, 3, 4, 5 award their "small" XP action (slider move / toggle /
+  revolution / apply-transform) on the "new target" button click rather
+  than on the specific action the mission brief names. Low priority —
+  cosmetic vs. the mission-brief wording — but worth tightening for
+  consistency with Unit 2's more literal flag-based XP.
+- No automated tests anywhere in the repo; verification has been manual
+  (`node --check` for syntax, DOM-id cross-checks, and reasoning through
+  the interaction logic). A lightweight headless-DOM smoke test per unit
+  would catch regressions like the Unit 5 matrix bug earlier.
+- Units 3, 4, 6 are functionally complete against their briefs but haven't
+  had a Unit-2-style "depth pass" (richer failure states, animated
+  feedback, etc.) — candidates for future sessions if that kind of
+  polish is wanted course-wide.

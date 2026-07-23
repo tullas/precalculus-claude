@@ -5,7 +5,7 @@
 
   // The "base machine." A distinctive piecewise-ish shape (not just a bare
   // parabola) so stretch/shift/reflect are all visually unambiguous.
-  const baseFn = (x) => 0.15 * x * x * Math.sign(x || 1) * 0 + 0.12 * (x - 1) * (x + 2) * (x - 3) / 4;
+  const baseFn = (x) => 0.12 * (x - 1) * (x + 2) * (x - 3) / 4;
 
   const sliders = {
     a: document.getElementById("slider-a"),
