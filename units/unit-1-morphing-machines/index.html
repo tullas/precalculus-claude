@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sector 01 — Morphing Machines · Trajectory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/css/style.css">
+<link rel="stylesheet" href="../../assets/css/lab.css">
+</head>
+<body>
+
+<header class="topnav">
+  <a class="topnav__brand" href="../../index.html">TRAJECTORY<span>.</span></a>
+  <a class="topnav__back" href="../../index.html">← Mission Control</a>
+</header>
+
+<section class="mission-header wrap">
+  <span class="eyebrow">Sector 01</span>
+  <h1>Morphing Machines</h1>
+  <p class="subtitle">The camera rig is broken. Four knobs — a, b, h, k — are
+  all you have to fix it. Match the target curve.</p>
+</section>
+
+<div class="wrap">
+  <div class="lab">
+    <div class="lab__canvas-wrap">
+      <canvas id="lab-canvas"></canvas>
+    </div>
+    <div class="lab__controls">
+      <h3>Rig controls</h3>
+
+      <div class="control-row">
+        <label for="slider-a">a — vertical zoom <output id="out-a">1.00</output></label>
+        <input type="range" id="slider-a" min="-3" max="3" step="0.1" value="1">
+      </div>
+      <div class="control-row">
+        <label for="slider-b">b — horizontal zoom <output id="out-b">1.00</output></label>
+        <input type="range" id="slider-b" min="-3" max="3" step="0.1" value="1">
+      </div>
+      <div class="control-row">
+        <label for="slider-h">h — horizontal pan <output id="out-h">0.00</output></label>
+        <input type="range" id="slider-h" min="-6" max="6" step="0.1" value="0">
+      </div>
+      <div class="control-row">
+        <label for="slider-k">k — vertical pan <output id="out-k">0.00</output></label>
+        <input type="range" id="slider-k" min="-6" max="6" step="0.1" value="0">
+      </div>
+
+      <div class="lab__readout" id="readout"></div>
+      <div class="lab__status" id="status"></div>
+
+      <button class="lab__button" id="check-btn">Check calibration</button>
+      <button class="lab__button" id="new-target-btn" style="background:transparent;color:var(--text-muted);border:1px solid var(--line);margin-top:8px;">New target curve</button>
+    </div>
+  </div>
+</div>
+
+<section class="wrap">
+  <div class="panel" id="mission-brief"></div>
+</section>
+
+<footer class="footer">Sector 01 of 06 · Trajectory Precalculus</footer>
+
+<script src="../../assets/js/progress.js"></script>
+<script src="../../assets/js/graph-engine.js"></script>
+<script src="../../assets/js/md-render.js"></script>
+<script src="lab.js"></script>
+<script>
+  TrajectoryMD.renderInto("mission-brief.md", document.getElementById("mission-brief"));
+</script>
+</body>
+</html>

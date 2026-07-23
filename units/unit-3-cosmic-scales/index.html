@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sector 03 — Cosmic Scales · Trajectory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/css/style.css">
+<link rel="stylesheet" href="../../assets/css/lab.css">
+</head>
+<body>
+
+<header class="topnav">
+  <a class="topnav__brand" href="../../index.html">TRAJECTORY<span>.</span></a>
+  <a class="topnav__back" href="../../index.html">← Mission Control</a>
+</header>
+
+<section class="mission-header wrap">
+  <span class="eyebrow">Sector 03</span>
+  <h1>Cosmic Scales</h1>
+  <p class="subtitle" id="target-brief">Loading tracking order…</p>
+</section>
+
+<div class="wrap">
+  <div class="lab">
+    <div class="lab__canvas-wrap">
+      <canvas id="lab-canvas"></canvas>
+    </div>
+    <div class="lab__controls">
+      <h3>Outbreak model</h3>
+
+      <div class="control-row">
+        <label for="slider-n0">N₀ — day-zero cases <output id="out-n0">12</output></label>
+        <input type="range" id="slider-n0" min="1" max="100" step="1" value="12">
+      </div>
+      <div class="control-row">
+        <label for="slider-r">r — daily growth rate <output id="out-r">35%</output></label>
+        <input type="range" id="slider-r" min="0.05" max="0.6" step="0.01" value="0.35">
+      </div>
+      <div class="control-row">
+        <label for="slider-guess">Your day estimate <output id="out-guess">15</output></label>
+        <input type="range" id="slider-guess" min="0" max="30" step="0.5" value="15">
+      </div>
+      <div class="control-row" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="toggle-log" style="width:auto;">
+        <label for="toggle-log" style="margin:0;">Switch to log₁₀ view</label>
+      </div>
+
+      <div class="lab__readout" id="readout"></div>
+      <div class="lab__status" id="status"></div>
+
+      <button class="lab__button" id="check-btn">Submit estimate</button>
+      <button class="lab__button" id="new-target-btn" style="background:transparent;color:var(--text-muted);border:1px solid var(--line);margin-top:8px;">New tracking order</button>
+    </div>
+  </div>
+</div>
+
+<section class="wrap">
+  <div class="panel" id="mission-brief"></div>
+</section>
+
+<footer class="footer">Sector 03 of 06 · Trajectory Precalculus</footer>
+
+<script src="../../assets/js/progress.js"></script>
+<script src="../../assets/js/graph-engine.js"></script>
+<script src="../../assets/js/md-render.js"></script>
+<script src="lab.js"></script>
+<script>
+  TrajectoryMD.renderInto("mission-brief.md", document.getElementById("mission-brief"));
+</script>
+</body>
+</html>

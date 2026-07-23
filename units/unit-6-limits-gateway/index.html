@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sector 06 — Limits: Gateway · Trajectory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/css/style.css">
+<link rel="stylesheet" href="../../assets/css/lab.css">
+</head>
+<body>
+
+<header class="topnav">
+  <a class="topnav__brand" href="../../index.html">TRAJECTORY<span>.</span></a>
+  <a class="topnav__back" href="../../index.html">← Mission Control</a>
+</header>
+
+<section class="mission-header wrap">
+  <span class="eyebrow">Sector 06</span>
+  <h1>Limits: Gateway to Calculus</h1>
+  <p class="subtitle" id="target-brief">Loading diagnostic order…</p>
+</section>
+
+<div class="wrap">
+  <div class="lab">
+    <div class="lab__canvas-wrap">
+      <canvas id="lab-canvas"></canvas>
+    </div>
+    <div class="lab__controls">
+      <h3>Sensor diagnostics</h3>
+
+      <div class="control-row">
+        <label for="sensor-select">Sensor expression</label>
+        <select id="sensor-select" style="width:100%;padding:6px;background:var(--bg-panel-raised);color:var(--text-primary);border:1px solid var(--line);border-radius:6px;"></select>
+      </div>
+      <div class="control-row">
+        <label for="slider-zoom">Zoom level <output id="out-zoom">±0.1000</output></label>
+        <input type="range" id="slider-zoom" min="0" max="4" step="0.1" value="0">
+      </div>
+      <div class="control-row">
+        <label for="slider-guess">Your limit estimate <output id="out-guess">0.00</output></label>
+        <input type="range" id="slider-guess" min="-2" max="14" step="0.1" value="0">
+      </div>
+
+      <div class="lab__readout" id="readout"></div>
+      <div class="lab__status" id="status"></div>
+
+      <button class="lab__button" id="check-btn">Submit estimate</button>
+      <button class="lab__button" id="new-target-btn" style="background:transparent;color:var(--text-muted);border:1px solid var(--line);margin-top:8px;">New diagnostic order</button>
+    </div>
+  </div>
+</div>
+
+<section class="wrap">
+  <div class="panel" id="mission-brief"></div>
+</section>
+
+<footer class="footer">Sector 06 of 06 · Trajectory Precalculus</footer>
+
+<script src="../../assets/js/progress.js"></script>
+<script src="../../assets/js/graph-engine.js"></script>
+<script src="../../assets/js/md-render.js"></script>
+<script src="lab.js"></script>
+<script>
+  TrajectoryMD.renderInto("mission-brief.md", document.getElementById("mission-brief"));
+</script>
+</body>
+</html>

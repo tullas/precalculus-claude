@@ -1,0 +1,102 @@
+(function () {
+  const UNIT_ID = "unit-4-cycles-and-waves";
+  const canvas = document.getElementById("lab-canvas");
+  const scene = GraphEngine.mount(canvas, { xRange: [-6, 9], yRange: [-2.2, 2.2] });
+
+  const thetaSlider = document.getElementById("slider-theta");
+  const thetaOut = document.getElementById("out-theta");
+  const readout = document.getElementById("readout");
+  const status = document.getElementById("status");
+  const brief = document.getElementById("target-brief");
+  const checkBtn = document.getElementById("check-btn");
+  const newTargetBtn = document.getElementById("new-target-btn");
+
+  const CX = -4, CY = 0, R = 1.4;
+  let matches = 0;
+  let targetTheta = 0;
+
+  function niceAngleLabel(t) {
+    const twoPi = Math.PI * 2;
+    const norm = ((t % twoPi) + twoPi) % twoPi;
+    return (norm / Math.PI).toFixed(2) + "π rad (" + (norm * 180 / Math.PI).toFixed(0) + "°)";
+  }
+
+  function newTarget() {
+    const options = [0, Math.PI / 6, Math.PI / 4, Math.PI / 3, Math.PI / 2, (2 * Math.PI) / 3, (3 * Math.PI) / 4, Math.PI, (3 * Math.PI) / 2];
+    targetTheta = options[Math.floor(Math.random() * options.length)];
+    brief.textContent = `Calibration order: rotate the dish to θ = ${niceAngleLabel(targetTheta)}.`;
+    status.textContent = "";
+    status.className = "lab__status";
+  }
+
+  function render() {
+    const theta = parseFloat(thetaSlider.value);
+    thetaOut.textContent = niceAngleLabel(theta);
+
+    scene.clear();
+
+    // unit circle outline
+    scene.plotFunction((x) => {
+      const dx = (x - CX) / R;
+      if (Math.abs(dx) > 1) return NaN;
+      return CY + R * Math.sqrt(1 - dx * dx);
+    }, { color: "rgba(154,160,190,0.5)", lineWidth: 1.5 });
+    scene.plotFunction((x) => {
+      const dx = (x - CX) / R;
+      if (Math.abs(dx) > 1) return NaN;
+      return CY - R * Math.sqrt(1 - dx * dx);
+    }, { color: "rgba(154,160,190,0.5)", lineWidth: 1.5 });
+
+    const px = CX + R * Math.cos(theta);
+    const py = CY + R * Math.sin(theta);
+    scene.plotVector(CX, CY, px, py, { color: "#e8912d" });
+    scene.plotPoint(px, py, { color: "#e8912d", radius: 6 });
+
+    // sine wave unrolled, x-axis = angle offset from 3
+    const waveOrigin = 0;
+    scene.plotFunction((x) => {
+      if (x < waveOrigin || x > waveOrigin + 2 * Math.PI + 2) return NaN;
+      return R * Math.sin(x - waveOrigin);
+    }, { color: "#35c4b8", lineWidth: 2 });
+
+    const wavePx = waveOrigin + theta;
+    const wavePy = R * Math.sin(theta);
+    scene.plotPoint(wavePx, wavePy, { color: "#e8912d", radius: 6 });
+
+    // dashed "shadow" line connecting circle height to wave height
+    scene.plotVector(px, py, wavePx, wavePy, { color: "rgba(232,145,45,0.25)", lineWidth: 1 });
+
+    readout.textContent = `θ = ${niceAngleLabel(theta)}    |    (cos θ, sin θ) ≈ (${Math.cos(theta).toFixed(2)}, ${Math.sin(theta).toFixed(2)})`;
+  }
+
+  function checkMatch() {
+    const theta = parseFloat(thetaSlider.value);
+    const twoPi = Math.PI * 2;
+    const diff = Math.min(
+      Math.abs(theta - targetTheta),
+      Math.abs(theta - targetTheta - twoPi),
+      Math.abs(theta - targetTheta + twoPi)
+    );
+    if (diff < 0.12) {
+      matches += 1;
+      const rec = Trajectory.addXP(UNIT_ID, 20);
+      status.textContent = `Signal locked (${matches}/3 for the badge). +20 XP — total ${rec.xp} XP.`;
+      status.className = "lab__status lab__status--ok";
+      if (matches >= 3) {
+        Trajectory.awardBadge(UNIT_ID);
+        status.textContent += " Badge earned: Signal Locked ★";
+      }
+      setTimeout(() => { newTarget(); render(); }, 1400);
+    } else {
+      status.textContent = "Off calibration — rotate the dish closer to the target angle.";
+      status.className = "lab__status lab__status--warn";
+    }
+  }
+
+  thetaSlider.addEventListener("input", render);
+  checkBtn.addEventListener("click", checkMatch);
+  newTargetBtn.addEventListener("click", () => { Trajectory.addXP(UNIT_ID, 10); newTarget(); render(); });
+
+  newTarget();
+  render();
+})();
