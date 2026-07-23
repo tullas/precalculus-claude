@@ -26,6 +26,7 @@
 
   let matches = 0;
   let target = null;
+  const slidersMoved = new Set(); // brief: "Move each slider once" — 10 XP per distinct slider, first move only
 
   function currentParams() {
     return {
@@ -86,7 +87,8 @@
       status.className = "lab__status lab__status--ok";
       if (matches >= 3) {
         Trajectory.awardBadge(UNIT_ID);
-        status.textContent += " Badge earned: Camera Calibrated ★";
+        const bonus = Trajectory.addXP(UNIT_ID, 15);
+        status.textContent += ` +15 bonus XP — total ${bonus.xp} XP. Badge earned: Camera Calibrated ★`;
       }
       setTimeout(newTarget, 1400);
     } else {
@@ -95,9 +97,19 @@
     }
   }
 
-  Object.values(sliders).forEach((s) => s.addEventListener("input", render));
+  Object.entries(sliders).forEach(([key, s]) => {
+    s.addEventListener("input", () => {
+      render();
+      if (!slidersMoved.has(key)) {
+        slidersMoved.add(key);
+        const rec = Trajectory.addXP(UNIT_ID, 10);
+        status.textContent = `First move on "${key}" logged. +10 XP — total ${rec.xp} XP.`;
+        status.className = "lab__status lab__status--ok";
+      }
+    });
+  });
   checkBtn.addEventListener("click", checkMatch);
-  newTargetBtn.addEventListener("click", () => { Trajectory.addXP(UNIT_ID, 10); newTarget(); });
+  newTargetBtn.addEventListener("click", newTarget);
 
   newTarget();
 })();

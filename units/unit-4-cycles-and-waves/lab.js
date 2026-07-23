@@ -14,6 +14,8 @@
   const CX = -4, CY = 0, R = 1.4;
   let matches = 0;
   let targetTheta = 0;
+  let revolutionAwarded = false; // brief: "Complete one full revolution" — 10 XP, once
+  const THETA_MAX = parseFloat(thetaSlider.max);
 
   function niceAngleLabel(t) {
     const twoPi = Math.PI * 2;
@@ -84,7 +86,8 @@
       status.className = "lab__status lab__status--ok";
       if (matches >= 3) {
         Trajectory.awardBadge(UNIT_ID);
-        status.textContent += " Badge earned: Signal Locked ★";
+        const bonus = Trajectory.addXP(UNIT_ID, 20);
+        status.textContent += ` +20 bonus XP — total ${bonus.xp} XP. Badge earned: Signal Locked ★`;
       }
       setTimeout(() => { newTarget(); render(); }, 1400);
     } else {
@@ -93,9 +96,18 @@
     }
   }
 
-  thetaSlider.addEventListener("input", render);
+  thetaSlider.addEventListener("input", () => {
+    render();
+    const theta = parseFloat(thetaSlider.value);
+    if (!revolutionAwarded && theta >= THETA_MAX - 0.02) {
+      revolutionAwarded = true;
+      const rec = Trajectory.addXP(UNIT_ID, 10);
+      status.textContent = `Full revolution logged. +10 XP — total ${rec.xp} XP.`;
+      status.className = "lab__status lab__status--ok";
+    }
+  });
   checkBtn.addEventListener("click", checkMatch);
-  newTargetBtn.addEventListener("click", () => { Trajectory.addXP(UNIT_ID, 10); newTarget(); render(); });
+  newTargetBtn.addEventListener("click", () => { newTarget(); render(); });
 
   newTarget();
   render();

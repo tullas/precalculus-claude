@@ -73,7 +73,8 @@
       status.className = "lab__status lab__status--ok";
       if (correct >= 3) {
         Trajectory.awardBadge(UNIT_ID);
-        status.textContent += " Badge earned: Outbreak Contained ★";
+        const bonus = Trajectory.addXP(UNIT_ID, 15);
+        status.textContent += ` +15 bonus XP — total ${bonus.xp} XP. Badge earned: Outbreak Contained ★`;
       }
       setTimeout(() => { newThreshold(); render(); }, 1600);
     } else {
@@ -83,7 +84,16 @@
   }
 
   Object.values(sliders).forEach((s) => s.addEventListener("input", render));
-  toggle.addEventListener("change", () => { Trajectory.addXP(UNIT_ID, 10); render(); });
+  let logToggleAwarded = false;
+  toggle.addEventListener("change", () => {
+    render();
+    if (!logToggleAwarded) {
+      logToggleAwarded = true;
+      const rec = Trajectory.addXP(UNIT_ID, 10);
+      status.textContent = `Log view toggled. +10 XP — total ${rec.xp} XP.`;
+      status.className = "lab__status lab__status--ok";
+    }
+  });
   checkBtn.addEventListener("click", checkEstimate);
   newTargetBtn.addEventListener("click", () => { newThreshold(); render(); });
 

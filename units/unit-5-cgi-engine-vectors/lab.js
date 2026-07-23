@@ -23,6 +23,7 @@
 
   let matches = 0;
   let target = null;
+  let transformXpAwarded = false; // brief: "Apply a rotation + non-uniform scale" — 10 XP, once
 
   // Rotation-then-scale, composed properly: R(theta) * S(sx, sy).
   // (The previous version only multiplied the diagonal entries by sx/sy,
@@ -105,7 +106,8 @@
       status.className = "lab__status lab__status--ok";
       if (matches >= 3) {
         Trajectory.awardBadge(UNIT_ID);
-        status.textContent += " Badge earned: Engine Online ★";
+        const bonus = Trajectory.addXP(UNIT_ID, 15);
+        status.textContent += ` +15 bonus XP — total ${bonus.xp} XP. Badge earned: Engine Online ★`;
       }
       setTimeout(newTarget, 1400);
     } else {
@@ -114,9 +116,22 @@
     }
   }
 
-  Object.values(sliders).forEach((s) => s.addEventListener("input", render));
+  function checkTransformMilestone() {
+    if (transformXpAwarded) return;
+    const p = currentParams();
+    const rotated = Math.abs(((p.theta % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) > 0.05;
+    const nonUniform = Math.abs(p.sx - p.sy) > 0.05;
+    if (rotated && nonUniform) {
+      transformXpAwarded = true;
+      const rec = Trajectory.addXP(UNIT_ID, 10);
+      status.textContent = `Rotation + non-uniform scale applied. +10 XP — total ${rec.xp} XP.`;
+      status.className = "lab__status lab__status--ok";
+    }
+  }
+
+  Object.values(sliders).forEach((s) => s.addEventListener("input", () => { render(); checkTransformMilestone(); }));
   checkBtn.addEventListener("click", checkMatch);
-  newTargetBtn.addEventListener("click", () => { Trajectory.addXP(UNIT_ID, 10); newTarget(); });
+  newTargetBtn.addEventListener("click", newTarget);
 
   newTarget();
 })();

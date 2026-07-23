@@ -138,19 +138,31 @@ coherently across sessions without re-deriving context from scratch.
   axis labels, which also fixes them not lining up); and Unit 2's
   checklist code called `CSS.escape()` for no real reason (swapped for a
   plain `Map` lookup).
+- XP wiring for units 1, 3, 4, 5 now matches their mission briefs
+  literally instead of approximately:
+  - Unit 1: "Move each slider once" now pays 10 XP the first time each
+    individual slider is touched (was a flat 10 XP on the unrelated
+    "new target" click).
+  - Unit 3: "Toggle log view once" now pays its 10 XP exactly once (was
+    paying it on *every* toggle — an accidental infinite-XP exploit).
+  - Unit 4: "Complete one full revolution" now pays 10 XP when the angle
+    dial reaches its full-circle end (was tied to "new target" instead).
+  - Unit 5: "Apply a rotation + non-uniform scale" now pays 10 XP the
+    first time `theta != 0` and `sx != sy` hold at once (was tied to
+    "new target" instead).
+  - Units 1, 3, 4, 5 also each promised a "+N bonus XP" for 3 correct
+    matches/estimates in their XP table, but only the badge was actually
+    firing — the bonus XP itself was silently never paid. All four now
+    pay it. Covered by `tests/xp-actions.test.mjs`.
 
 **Known gaps / next up**
 
-- Units 1, 3, 4, 5 award their "small" XP action (slider move / toggle /
-  revolution / apply-transform) on the "new target" button click rather
-  than on the specific action the mission brief names. Low priority —
-  cosmetic vs. the mission-brief wording — but worth tightening for
-  consistency with Unit 2's more literal flag-based XP.
 - Units 3, 4, 6 are functionally complete against their briefs but haven't
   had a Unit-2-style "depth pass" (richer failure states, animated
   feedback, etc.) — candidates for future sessions if that kind of
   polish is wanted course-wide.
 - `npm test` covers load-without-throwing + input-sweep for all six
-  units, plus targeted behavior tests for Units 2 and 5. Units 1, 3, 4, 6
-  only have the generic smoke coverage, not unit-specific assertions
-  (e.g. Unit 3's threshold-crossing math, Unit 4's revolution tracking).
+  units, targeted behavior tests for Units 2 and 5, and the XP-wiring
+  fixes for units 1/3/4/5. Units 3, 4, 6 still don't have unit-specific
+  correctness tests for their core math (e.g. Unit 3's
+  threshold-crossing estimate, Unit 6's limit-approach behavior).
