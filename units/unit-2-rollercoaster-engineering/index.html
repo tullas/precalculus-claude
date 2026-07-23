@@ -30,26 +30,55 @@
     <div class="lab__controls">
       <h3>Track blueprint</h3>
 
-      <div class="control-row">
-        <label for="slider-r1">r₁ — ground contact 1 <output id="out-r1">-4.0</output></label>
-        <input type="range" id="slider-r1" min="-8" max="8" step="0.1" value="-4">
+      <div class="mode-toggle">
+        <button type="button" class="lab__mode-btn lab__mode-btn--active" id="mode-poly">Polynomial track</button>
+        <button type="button" class="lab__mode-btn" id="mode-rational">Rational track</button>
       </div>
-      <div class="control-row">
-        <label for="slider-r2">r₂ — ground contact 2 <output id="out-r2">0.0</output></label>
-        <input type="range" id="slider-r2" min="-8" max="8" step="0.1" value="0">
+
+      <div id="polynomial-controls">
+        <div class="control-row">
+          <label for="slider-r1">r₁ — ground contact 1 <output id="out-r1">-4.0</output></label>
+          <input type="range" id="slider-r1" min="-8" max="8" step="0.1" value="-4">
+        </div>
+        <div class="control-row">
+          <label for="slider-r2">r₂ — ground contact 2 <output id="out-r2">0.0</output></label>
+          <input type="range" id="slider-r2" min="-8" max="8" step="0.1" value="0">
+        </div>
+        <div class="control-row">
+          <label for="slider-r3">r₃ — ground contact 3 <output id="out-r3">4.0</output></label>
+          <input type="range" id="slider-r3" min="-8" max="8" step="0.1" value="4">
+        </div>
+        <div class="control-row">
+          <label for="slider-a">a — launch power / sign <output id="out-a">0.10</output></label>
+          <input type="range" id="slider-a" min="-1" max="1" step="0.05" value="0.1">
+        </div>
       </div>
-      <div class="control-row">
-        <label for="slider-r3">r₃ — ground contact 3 <output id="out-r3">4.0</output></label>
-        <input type="range" id="slider-r3" min="-8" max="8" step="0.1" value="4">
-      </div>
-      <div class="control-row">
-        <label for="slider-a">a — launch power / sign <output id="out-a">0.10</output></label>
-        <input type="range" id="slider-a" min="-1" max="1" step="0.05" value="0.1">
+
+      <div id="rational-controls" style="display:none;">
+        <div class="control-row">
+          <label for="slider-asy">asymptote — guardrail wall <output id="out-asy">-2.0</output></label>
+          <input type="range" id="slider-asy" min="-8" max="8" step="0.1" value="-2">
+        </div>
+        <div class="control-row">
+          <label for="slider-hole">hole — missing point <output id="out-hole">3.0</output></label>
+          <input type="range" id="slider-hole" min="-8" max="8" step="0.1" value="3">
+        </div>
+        <div class="control-row">
+          <label for="slider-ra">scale <output id="out-ra">1.00</output></label>
+          <input type="range" id="slider-ra" min="-4" max="4" step="0.1" value="1">
+        </div>
       </div>
 
       <div class="lab__readout" id="readout"></div>
+
+      <div class="lab__checklist" id="feature-checklist">
+        <h4>Pre-flight: flag every feature you see</h4>
+        <div id="checklist-items"></div>
+      </div>
+
       <div class="lab__status" id="status"></div>
 
+      <button class="lab__button" id="run-btn">Run simulator</button>
       <button class="lab__button" id="check-btn">Certify track</button>
       <button class="lab__button" id="new-target-btn" style="background:transparent;color:var(--text-muted);border:1px solid var(--line);margin-top:8px;">New inspection order</button>
     </div>

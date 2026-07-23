@@ -89,3 +89,69 @@
 }
 .lab__button:hover { filter: brightness(1.08); }
 .lab__button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.lab__mode-btn {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 8px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.lab__mode-btn--active {
+  background: var(--flare);
+  border-color: var(--flare);
+  color: #201304;
+  font-weight: 600;
+}
+.lab__mode-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.lab__checklist {
+  margin-top: 14px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+.lab__checklist h4 {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.checklist__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 5px 6px;
+  border-radius: 4px;
+  color: var(--text-primary);
+}
+.checklist__row input[type="checkbox"] { accent-color: var(--flare); }
+.checklist__row--ok {
+  background: rgba(53,196,184,0.12);
+  color: var(--signal-teal);
+}
+.checklist__row--missed {
+  background: rgba(217,99,107,0.12);
+  color: var(--alert-rose);
+}
+.checklist__empty {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
