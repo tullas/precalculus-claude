@@ -165,16 +165,34 @@ coherently across sessions without re-deriving context from scratch.
   already correct — but this closes the "only generic smoke coverage"
   gap for these two units.
 
+- Persistent XP badge on every unit page. A user reported completing
+  unit 4's target three times in a row with "the XP not changing." The
+  underlying XP logic was correct (and tested), but the only place a unit
+  page showed the running total was the `status` line, which is
+  transient — it gets wiped the moment the next target loads
+  (~1.4-1.6s later). Three quick correct answers could easily outrun
+  that flash, leaving no visible confirmation anywhere on the page (the
+  Mission Control homepage total was one click away, but nobody should
+  have to leave the lab to see what they just earned). Added a small
+  "N XP" pill in every unit's header, wired to refresh at every XP/badge
+  award call site (not just from `render()`, since awards don't always
+  happen alongside a render call) so it's accurate independent of the
+  status line's timing. Unit 2's several award sites were consolidated
+  behind two local wrapper functions (`addXP`/`awardBadge`) so the badge
+  can't be missed at a call site by hand; the other five units call
+  `refreshXpBadge()` explicitly at each site. Covered by
+  `tests/xp-badge.test.mjs`, including a direct reproduction of the
+  reported scenario (three rapid-fire correct matches with no waiting
+  between them).
+
 **Known gaps / next up**
 
 - A Unit-2-style "depth pass" for Units 3, 4, 6 (richer failure states,
-  animated feedback, etc.) is the one item left on the original punch
-  list — everything else noted in earlier entries here has been resolved.
-- `npm test` (25 tests) now has: smoke coverage for all six units,
-  targeted behavior tests for Unit 2's simulator, Unit 5's matrix fix,
-  and XP wiring across units 1/3/4/5/6, plus correctness tests for units
-  3 and 6. Units 1, 4, 5 still only have XP-wiring tests, not core-math
-  correctness tests (Unit 1's curve-matching tolerance, Unit 4's
-  angle-matching tolerance, Unit 5's target-match tolerance) — lower
-  priority since those checks are simple tolerance comparisons rather
-  than derived formulas, but not yet covered.
+  animated feedback, etc.) remains the one open item — deliberately not
+  started; see the note in the prior entry for the reasoning.
+- `npm test` (34 tests) covers: smoke tests for all six units, Unit 2's
+  simulator, Unit 5's matrix fix, XP wiring across all six units, math
+  correctness for units 3 and 6, the Mission Control dashboard (including
+  its own bfcache fix), and the persistent XP badge. Units 1, 4, 5 still
+  don't have core-math correctness tests (simple tolerance comparisons
+  rather than derived formulas, so lower priority than units 3/6 were).

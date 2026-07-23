@@ -18,12 +18,20 @@
   const readout = document.getElementById("readout");
   const status = document.getElementById("status");
   const brief = document.getElementById("target-brief");
+  const xpBadge = document.getElementById("xp-badge");
   const checkBtn = document.getElementById("check-btn");
   const newTargetBtn = document.getElementById("new-target-btn");
 
   let matches = 0;
   let target = null;
   let transformXpAwarded = false; // brief: "Apply a rotation + non-uniform scale" — 10 XP, once
+
+  function refreshXpBadge() {
+    if (!xpBadge) return;
+    const rec = Trajectory.get(UNIT_ID);
+    xpBadge.textContent = Trajectory.badgeText(UNIT_ID);
+    xpBadge.classList.toggle("xp-badge--earned", rec.badgeEarned);
+  }
 
   // Rotation-then-scale, composed properly: R(theta) * S(sx, sy).
   // (The previous version only multiplied the diagonal entries by sx/sy,
@@ -104,10 +112,12 @@
       const rec = Trajectory.addXP(UNIT_ID, 25);
       status.textContent = `Sprite matched (${matches}/3 for the badge). +25 XP — total ${rec.xp} XP.`;
       status.className = "lab__status lab__status--ok";
+      refreshXpBadge();
       if (matches >= 3) {
         Trajectory.awardBadge(UNIT_ID);
         const bonus = Trajectory.addXP(UNIT_ID, 15);
         status.textContent += ` +15 bonus XP — total ${bonus.xp} XP. Badge earned: Engine Online ★`;
+        refreshXpBadge();
       }
       setTimeout(newTarget, 1400);
     } else {
@@ -126,6 +136,7 @@
       const rec = Trajectory.addXP(UNIT_ID, 10);
       status.textContent = `Rotation + non-uniform scale applied. +10 XP — total ${rec.xp} XP.`;
       status.className = "lab__status lab__status--ok";
+      refreshXpBadge();
     }
   }
 
@@ -134,4 +145,5 @@
   newTargetBtn.addEventListener("click", newTarget);
 
   newTarget();
+  refreshXpBadge();
 })();

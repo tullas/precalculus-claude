@@ -17,12 +17,20 @@
   const readout = document.getElementById("readout");
   const status = document.getElementById("status");
   const brief = document.getElementById("target-brief");
+  const xpBadge = document.getElementById("xp-badge");
   const checkBtn = document.getElementById("check-btn");
   const newTargetBtn = document.getElementById("new-target-btn");
 
   let correct = 0;
   let threshold = 5000;
   const T_MAX = 30;
+
+  function refreshXpBadge() {
+    if (!xpBadge) return;
+    const rec = Trajectory.get(UNIT_ID);
+    xpBadge.textContent = Trajectory.badgeText(UNIT_ID);
+    xpBadge.classList.toggle("xp-badge--earned", rec.badgeEarned);
+  }
 
   function N(t, n0, r) { return n0 * Math.pow(1 + r, t); }
 
@@ -71,10 +79,12 @@
       const rec = Trajectory.addXP(UNIT_ID, 25);
       status.textContent = `Correct — threshold crossed at day ${trueDay.toFixed(1)}. (${correct}/3 for the badge) +25 XP — total ${rec.xp} XP.`;
       status.className = "lab__status lab__status--ok";
+      refreshXpBadge();
       if (correct >= 3) {
         Trajectory.awardBadge(UNIT_ID);
         const bonus = Trajectory.addXP(UNIT_ID, 15);
         status.textContent += ` +15 bonus XP — total ${bonus.xp} XP. Badge earned: Outbreak Contained ★`;
+        refreshXpBadge();
       }
       setTimeout(() => { newThreshold(); render(); }, 1600);
     } else {
@@ -92,6 +102,7 @@
       const rec = Trajectory.addXP(UNIT_ID, 10);
       status.textContent = `Log view toggled. +10 XP — total ${rec.xp} XP.`;
       status.className = "lab__status lab__status--ok";
+      refreshXpBadge();
     }
   });
   checkBtn.addEventListener("click", checkEstimate);
@@ -99,4 +110,5 @@
 
   newThreshold();
   render();
+  refreshXpBadge();
 })();

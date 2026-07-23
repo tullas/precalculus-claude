@@ -31,10 +31,23 @@
   const readout = document.getElementById("readout");
   const status = document.getElementById("status");
   const brief = document.getElementById("target-brief");
+  const xpBadge = document.getElementById("xp-badge");
   const checkBtn = document.getElementById("check-btn");
   const newTargetBtn = document.getElementById("new-target-btn");
   const runBtn = document.getElementById("run-btn");
   const checklistItems = document.getElementById("checklist-items");
+
+  function refreshXpBadge() {
+    if (!xpBadge) return;
+    const rec = Trajectory.get(UNIT_ID);
+    xpBadge.textContent = Trajectory.badgeText(UNIT_ID);
+    xpBadge.classList.toggle("xp-badge--earned", rec.badgeEarned);
+  }
+  // Thin wrappers so every XP/badge award anywhere in this file keeps the
+  // header badge in sync without having to remember to call
+  // refreshXpBadge() at each of the several call sites individually.
+  function addXP(amount) { const rec = Trajectory.addXP(UNIT_ID, amount); refreshXpBadge(); return rec; }
+  function awardBadge() { const rec = Trajectory.awardBadge(UNIT_ID); refreshXpBadge(); return rec; }
 
   const KISS_TOLERANCE = 0.3;
   const HOLE_ASYMPTOTE_MIN_GAP = 0.5;
@@ -166,7 +179,7 @@
     // paid out once per distinct feature (toggling on/off/on again does not re-pay it).
     if (checked && feature.type === "asymptote" && !sim && !asymptoteXpAwarded.has(feature.id)) {
       asymptoteXpAwarded.add(feature.id);
-      const rec = Trajectory.addXP(UNIT_ID, 20);
+      const rec = addXP(20);
       status.textContent = `Asymptote flagged before launch. +20 XP — total ${rec.xp} XP.`;
       status.className = "lab__status lab__status--ok";
     }
@@ -275,11 +288,11 @@
     if (directionOk && doubleRootOk) {
       certifications += 1;
       let xp = 20 + (requirement.requireDoubleRoot ? 15 : 0);
-      const rec = Trajectory.addXP(UNIT_ID, xp);
+      const rec = addXP(xp);
       status.textContent = `Track certified (${certifications}/3 for the badge). +${xp} XP — total ${rec.xp} XP.`;
       status.className = "lab__status lab__status--ok";
       if (certifications >= 3) {
-        Trajectory.awardBadge(UNIT_ID);
+        awardBadge();
         status.textContent += " Badge earned: Track Certified ★";
       }
       setTimeout(newRequirement, 1400);
@@ -467,7 +480,7 @@
       const flaggedKisses = finishedFeatures.filter((f) => f.type === "kiss" && flags[f.id]).length;
       certifications += 1;
       let xp = 20 + flaggedKisses * 15;
-      const rec = Trajectory.addXP(UNIT_ID, xp);
+      const rec = addXP(xp);
       let msg = `Simulation complete — the cart made it through. +${xp} XP — total ${rec.xp} XP.`;
       if (missedCrossings || missedHoles) {
         msg += ` (${missedCrossings + missedHoles} feature${missedCrossings + missedHoles === 1 ? "" : "s"} went unflagged — check the highlighted rows.)`;
@@ -475,7 +488,7 @@
       status.textContent = msg;
       status.className = "lab__status lab__status--ok";
       if (certifications >= 3 && mode === "polynomial") {
-        Trajectory.awardBadge(UNIT_ID);
+        awardBadge();
         status.textContent += " Badge earned: Track Certified ★";
       }
     } else {
@@ -488,11 +501,12 @@
 
   Object.values(sliders).forEach((s) => s.addEventListener("input", render));
   checkBtn.addEventListener("click", certify);
-  newTargetBtn.addEventListener("click", () => { Trajectory.addXP(UNIT_ID, 5); newRequirement(); render(); });
+  newTargetBtn.addEventListener("click", () => { addXP(5); newRequirement(); render(); });
   runBtn.addEventListener("click", runSimulation);
   modeButtons.polynomial.addEventListener("click", () => setMode("polynomial"));
   modeButtons.rational.addEventListener("click", () => setMode("rational"));
 
   updateBrief();
   render();
+  refreshXpBadge();
 })();

@@ -8,6 +8,7 @@
   const readout = document.getElementById("readout");
   const status = document.getElementById("status");
   const brief = document.getElementById("target-brief");
+  const xpBadge = document.getElementById("xp-badge");
   const checkBtn = document.getElementById("check-btn");
   const newTargetBtn = document.getElementById("new-target-btn");
 
@@ -16,6 +17,18 @@
   let targetTheta = 0;
   let revolutionAwarded = false; // brief: "Complete one full revolution" — 10 XP, once
   const THETA_MAX = parseFloat(thetaSlider.max);
+
+  // Success messages in `status` are transient — they get cleared a
+  // moment later when the next target loads (see newTarget()). This badge
+  // is the persistent record of XP earned on this page, so a fast run of
+  // correct answers can't outrun the status flash and leave the student
+  // with no visible confirmation of what they earned.
+  function refreshXpBadge() {
+    if (!xpBadge) return;
+    const rec = Trajectory.get(UNIT_ID);
+    xpBadge.textContent = Trajectory.badgeText(UNIT_ID);
+    xpBadge.classList.toggle("xp-badge--earned", rec.badgeEarned);
+  }
 
   function niceAngleLabel(t) {
     const twoPi = Math.PI * 2;
@@ -84,10 +97,12 @@
       const rec = Trajectory.addXP(UNIT_ID, 20);
       status.textContent = `Signal locked (${matches}/3 for the badge). +20 XP — total ${rec.xp} XP.`;
       status.className = "lab__status lab__status--ok";
+      refreshXpBadge();
       if (matches >= 3) {
         Trajectory.awardBadge(UNIT_ID);
         const bonus = Trajectory.addXP(UNIT_ID, 20);
         status.textContent += ` +20 bonus XP — total ${bonus.xp} XP. Badge earned: Signal Locked ★`;
+        refreshXpBadge();
       }
       setTimeout(() => { newTarget(); render(); }, 1400);
     } else {
@@ -104,6 +119,7 @@
       const rec = Trajectory.addXP(UNIT_ID, 10);
       status.textContent = `Full revolution logged. +10 XP — total ${rec.xp} XP.`;
       status.className = "lab__status lab__status--ok";
+      refreshXpBadge();
     }
   });
   checkBtn.addEventListener("click", checkMatch);
@@ -111,4 +127,5 @@
 
   newTarget();
   render();
+  refreshXpBadge();
 })();

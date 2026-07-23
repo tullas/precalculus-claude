@@ -207,6 +207,25 @@ a { color: var(--flare); }
 .mission-header h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 10px 0 6px; }
 .mission-header .subtitle { color: var(--text-muted); max-width: 700px; }
 
+.xp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--signal-teal);
+  background: rgba(53,196,184,0.12);
+  border: 1px solid rgba(53,196,184,0.35);
+  border-radius: 999px;
+  padding: 6px 14px;
+}
+.xp-badge--earned {
+  color: var(--flare);
+  background: rgba(232,145,45,0.14);
+  border-color: rgba(232,145,45,0.45);
+}
+
 .panel {
   background: var(--parchment);
   color: #24211a;

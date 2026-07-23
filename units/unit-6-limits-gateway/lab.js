@@ -18,6 +18,7 @@
   const readout = document.getElementById("readout");
   const status = document.getElementById("status");
   const brief = document.getElementById("target-brief");
+  const xpBadge = document.getElementById("xp-badge");
   const checkBtn = document.getElementById("check-btn");
   const newTargetBtn = document.getElementById("new-target-btn");
 
@@ -25,6 +26,13 @@
   let current = SENSORS[0];
   let zoomMaxAwarded = false; // brief: "Zoom to max on one function" — 10 XP, once
   const ZOOM_MAX = parseFloat(zoomSlider.max);
+
+  function refreshXpBadge() {
+    if (!xpBadge) return;
+    const rec = Trajectory.get(UNIT_ID);
+    xpBadge.textContent = Trajectory.badgeText(UNIT_ID);
+    xpBadge.classList.toggle("xp-badge--earned", rec.badgeEarned);
+  }
 
   function newSensor() {
     current = SENSORS[Math.floor(Math.random() * SENSORS.length)];
@@ -62,10 +70,12 @@
       const rec = Trajectory.addXP(UNIT_ID, 25);
       status.textContent = `Correct — the limit is ${current.limit}. (${correct}/3 for the badge) +25 XP — total ${rec.xp} XP.`;
       status.className = "lab__status lab__status--ok";
+      refreshXpBadge();
       if (correct >= 3) {
         Trajectory.awardBadge(UNIT_ID);
         const bonus = Trajectory.addXP(UNIT_ID, 15);
         status.textContent += ` +15 bonus XP — total ${bonus.xp} XP. Badge earned: Sensor Repaired ★`;
+        refreshXpBadge();
       }
       setTimeout(() => { newSensor(); render(); }, 1500);
     } else {
@@ -83,6 +93,7 @@
       const rec = Trajectory.addXP(UNIT_ID, 10);
       status.textContent = `Zoomed to max resolution. +10 XP — total ${rec.xp} XP.`;
       status.className = "lab__status lab__status--ok";
+      refreshXpBadge();
     }
   });
   guessSlider.addEventListener("input", render);
@@ -92,4 +103,5 @@
   select.innerHTML = SENSORS.map((s, i) => `<option value="${i}">${s.label}</option>`).join("");
   newSensor();
   render();
+  refreshXpBadge();
 })();

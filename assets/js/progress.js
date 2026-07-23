@@ -37,5 +37,12 @@ const Trajectory = (() => {
     return data[unitId] || { xp: 0, badgeEarned: false };
   }
 
-  return { addXP, awardBadge, get };
+  // Shared formatting for the small persistent "N XP" pill every unit page
+  // shows near its header, so the wording can't drift unit to unit.
+  function badgeText(unitId) {
+    const rec = get(unitId);
+    return `${rec.xp} XP` + (rec.badgeEarned ? " · ★ Badge earned" : "");
+  }
+
+  return { addXP, awardBadge, get, badgeText };
 })();

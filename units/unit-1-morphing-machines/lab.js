@@ -21,12 +21,20 @@
   };
   const readout = document.getElementById("readout");
   const status = document.getElementById("status");
+  const xpBadge = document.getElementById("xp-badge");
   const checkBtn = document.getElementById("check-btn");
   const newTargetBtn = document.getElementById("new-target-btn");
 
   let matches = 0;
   let target = null;
   const slidersMoved = new Set(); // brief: "Move each slider once" — 10 XP per distinct slider, first move only
+
+  function refreshXpBadge() {
+    if (!xpBadge) return;
+    const rec = Trajectory.get(UNIT_ID);
+    xpBadge.textContent = Trajectory.badgeText(UNIT_ID);
+    xpBadge.classList.toggle("xp-badge--earned", rec.badgeEarned);
+  }
 
   function currentParams() {
     return {
@@ -85,10 +93,12 @@
       const rec = Trajectory.addXP(UNIT_ID, 25);
       status.textContent = `Match confirmed. Rig calibrated (${matches}/3 for the badge). +25 XP — total ${rec.xp} XP.`;
       status.className = "lab__status lab__status--ok";
+      refreshXpBadge();
       if (matches >= 3) {
         Trajectory.awardBadge(UNIT_ID);
         const bonus = Trajectory.addXP(UNIT_ID, 15);
         status.textContent += ` +15 bonus XP — total ${bonus.xp} XP. Badge earned: Camera Calibrated ★`;
+        refreshXpBadge();
       }
       setTimeout(newTarget, 1400);
     } else {
@@ -105,6 +115,7 @@
         const rec = Trajectory.addXP(UNIT_ID, 10);
         status.textContent = `First move on "${key}" logged. +10 XP — total ${rec.xp} XP.`;
         status.className = "lab__status lab__status--ok";
+        refreshXpBadge();
       }
     });
   });
@@ -112,4 +123,5 @@
   newTargetBtn.addEventListener("click", newTarget);
 
   newTarget();
+  refreshXpBadge();
 })();
