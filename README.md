@@ -30,6 +30,21 @@ No other dependencies. Any static server works (`npx serve`, VS Code Live
 Server, `php -S`) — Python's is called out because it ships with the OS on
 every platform this course targets.
 
+## Testing
+
+The site itself has zero dependencies — `npm`/`node_modules` are only for an
+optional dev-only test suite that isn't needed to run or deploy the course.
+
+```bash
+npm install   # dev-only: jsdom, for the test suite below
+npm test
+```
+
+Tests load each unit's real `index.html` through jsdom and exercise it the
+way a student would (drag sliders, click buttons), rather than duplicating
+markup into hand-written fixtures that could drift from what ships. See
+`tests/dom-harness.mjs` for the (small) set of jsdom stubs this requires.
+
 ## Version control
 
 ```bash
@@ -113,6 +128,16 @@ coherently across sessions without re-deriving context from scratch.
   non-uniform scale (`sx != sy`) wasn't applied to the off-diagonal terms,
   which silently introduced shear instead of a clean rotate+scale.
 - Unit 1 (Morphing Machines): removed dead no-op code in the base function.
+- Test suite (`npm test`, node's built-in test runner + jsdom): loads
+  every unit's real `index.html`, sweeps every slider, exercises
+  check/new-target flows, and has targeted behavior tests for Unit 2's
+  simulator and the Unit 5 matrix fix. Writing it caught two more real
+  bugs: `graph-engine.js`'s grid-line loop stepped by a fixed 1 math
+  unit regardless of axis range, which turned into a near-infinite loop
+  for Unit 3's exponential y-range (now shares an adaptive step with the
+  axis labels, which also fixes them not lining up); and Unit 2's
+  checklist code called `CSS.escape()` for no real reason (swapped for a
+  plain `Map` lookup).
 
 **Known gaps / next up**
 
@@ -121,11 +146,11 @@ coherently across sessions without re-deriving context from scratch.
   than on the specific action the mission brief names. Low priority —
   cosmetic vs. the mission-brief wording — but worth tightening for
   consistency with Unit 2's more literal flag-based XP.
-- No automated tests anywhere in the repo; verification has been manual
-  (`node --check` for syntax, DOM-id cross-checks, and reasoning through
-  the interaction logic). A lightweight headless-DOM smoke test per unit
-  would catch regressions like the Unit 5 matrix bug earlier.
 - Units 3, 4, 6 are functionally complete against their briefs but haven't
   had a Unit-2-style "depth pass" (richer failure states, animated
   feedback, etc.) — candidates for future sessions if that kind of
   polish is wanted course-wide.
+- `npm test` covers load-without-throwing + input-sweep for all six
+  units, plus targeted behavior tests for Units 2 and 5. Units 1, 3, 4, 6
+  only have the generic smoke coverage, not unit-specific assertions
+  (e.g. Unit 3's threshold-crossing math, Unit 4's revolution tracking).
