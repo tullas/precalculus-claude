@@ -59,7 +59,7 @@ test("unit 3: the +15 three-estimate bonus is actually paid (not just the badge)
     setSlider(guessSlider, Math.max(parseFloat(guessSlider.min), Math.min(parseFloat(guessSlider.max), trueDay)));
     click(checkBtn);
     assert.match(status.textContent, /Correct/, `round ${round}: expected a correct-estimate match`);
-    if (round < 2) await sleep(1700); // lab.js schedules the next target via setTimeout(...,1600)
+    if (round < 2) await sleep(2200); // lab.js schedules the next target via setTimeout(...,1600); generous margin under load
   }
 
   assert.match(status.textContent, /\+15 bonus XP/, "the 3rd correct estimate should mention the +15 bonus");
@@ -80,7 +80,7 @@ test("unit 4: the +20 three-match bonus is actually paid (not just the badge)", 
     setSlider(slider, targetTheta);
     click(checkBtn);
     assert.match(status.textContent, /locked/i, `round ${round}: expected a signal-locked match`);
-    if (round < 2) await sleep(1500); // lab.js schedules the next target via setTimeout(...,1400)
+    if (round < 2) await sleep(2000); // lab.js schedules the next target via setTimeout(...,1400); generous margin under load
   }
 
   assert.match(status.textContent, /\+20 bonus XP/, "the 3rd match should mention the +20 bonus");
@@ -168,7 +168,7 @@ test("unit 6: the +15 three-estimate bonus is actually paid (not just the badge)
     setSlider(guessSlider, limit);
     click(checkBtn);
     assert.match(status.textContent, /^Correct/, `round ${round}: expected a correct estimate`);
-    if (round < 2) await sleep(1700); // lab.js schedules the next sensor via setTimeout(...,1500)
+    if (round < 2) await sleep(2200); // lab.js schedules the next sensor via setTimeout(...,1500); generous margin under load
   }
 
   assert.match(status.textContent, /\+15 bonus XP/, "the 3rd correct estimate should mention the +15 bonus");

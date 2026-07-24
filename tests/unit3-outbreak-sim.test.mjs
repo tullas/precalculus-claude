@@ -1,8 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { loadUnit, setSlider, click } from "./dom-harness.mjs";
-
-function sleep(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
+import { loadUnit, setSlider, click, waitFor } from "./dom-harness.mjs";
 
 test("unit 3: 'Run outbreak simulation' disables controls, animates, then scores exactly like a manual check", async () => {
   const { document } = await loadUnit("unit-3-cosmic-scales");
@@ -24,10 +22,11 @@ test("unit 3: 'Run outbreak simulation' disables controls, animates, then scores
   assert.equal(checkBtn.disabled, true);
   assert.match(status.textContent, /Simulating outbreak/);
 
-  await sleep(300); // animation is 3200ms of *virtual* time, but the RAF stub
-  // advances that near-instantly in real time — just need enough real ms for
-  // the ~192 queued setImmediate callbacks to flush, well before checkEstimate's
-  // own 1600ms post-success status-clear timeout would fire.
+  // animation is 3200ms of *virtual* time, but the RAF stub advances that
+  // near-instantly in real time via a queue of setImmediate callbacks —
+  // poll for completion rather than guessing a fixed real-time delay,
+  // which was flaky under system load.
+  await waitFor(() => !runBtn.disabled, { timeoutMs: 5000 });
   assert.equal(runBtn.disabled, false, "controls should unlock once the animation finishes");
   assert.match(status.textContent, /^Correct/, "the animation should end by scoring exactly like a manual check");
 });
@@ -39,7 +38,7 @@ test("unit 3: clicking 'Run outbreak simulation' twice in a row is a no-op while
   const statusAfterFirstClick = document.getElementById("status").textContent;
   click(runBtn); // should be ignored — a second animation loop must not start
   assert.equal(document.getElementById("status").textContent, statusAfterFirstClick);
-  await sleep(300);
+  await waitFor(() => !runBtn.disabled, { timeoutMs: 5000 });
   assert.equal(runBtn.disabled, false);
 });
 
@@ -47,7 +46,8 @@ test("unit 3: an incorrect guess run through the simulator is scored as incorrec
   const { document } = await loadUnit("unit-3-cosmic-scales");
   const guessSlider = document.getElementById("slider-guess");
   setSlider(guessSlider, parseFloat(guessSlider.min)); // day 0 — essentially never the true crossing day
-  click(document.getElementById("run-btn"));
-  await sleep(300);
+  const runBtn = document.getElementById("run-btn");
+  click(runBtn);
+  await waitFor(() => !runBtn.disabled, { timeoutMs: 5000 });
   assert.match(document.getElementById("status").textContent, /^Off target/);
 });

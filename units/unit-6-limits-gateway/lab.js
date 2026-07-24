@@ -21,6 +21,7 @@
   const xpBadge = document.getElementById("xp-badge");
   const checkBtn = document.getElementById("check-btn");
   const newTargetBtn = document.getElementById("new-target-btn");
+  const zoomScanBtn = document.getElementById("zoom-scan-btn");
 
   let correct = 0;
   let current = SENSORS[0];
@@ -84,6 +85,49 @@
     }
   }
 
+  let scanRunning = false;
+
+  function setControlsDisabled(disabled) {
+    select.disabled = disabled;
+    zoomSlider.disabled = disabled;
+    guessSlider.disabled = disabled;
+    checkBtn.disabled = disabled;
+    newTargetBtn.disabled = disabled;
+    zoomScanBtn.disabled = disabled;
+  }
+
+  // render() already draws whatever the zoom window currently is — it
+  // reads zoomSlider.value directly and shrinks scene range accordingly —
+  // so animating the zoom is just automated dragging: set the slider and
+  // dispatch a real 'input' event each frame. That reuses the existing
+  // listener (render() + the zoom-to-max XP check) exactly as a manual
+  // drag would, frame by frame, rather than needing any separate drawing
+  // or XP logic for the animated path.
+  function runZoomScan() {
+    if (scanRunning) return;
+    scanRunning = true;
+    setControlsDisabled(true);
+    status.textContent = "Scanning toward the discontinuity…";
+    status.className = "lab__status";
+
+    const durationMs = 3000;
+    let startTime = null;
+
+    function frame(ts) {
+      if (startTime === null) startTime = ts;
+      const t = Math.min(1, (ts - startTime) / durationMs);
+      zoomSlider.value = String(t * ZOOM_MAX);
+      zoomSlider.dispatchEvent(new Event("input", { bubbles: true }));
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        scanRunning = false;
+        setControlsDisabled(false);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
   select.addEventListener("change", () => { current = SENSORS[parseInt(select.value, 10)]; render(); });
   zoomSlider.addEventListener("input", () => {
     render();
@@ -99,6 +143,7 @@
   guessSlider.addEventListener("input", render);
   checkBtn.addEventListener("click", checkGuess);
   newTargetBtn.addEventListener("click", () => { newSensor(); render(); });
+  zoomScanBtn.addEventListener("click", runZoomScan);
 
   select.innerHTML = SENSORS.map((s, i) => `<option value="${i}">${s.label}</option>`).join("");
   newSensor();

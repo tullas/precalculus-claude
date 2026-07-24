@@ -213,15 +213,37 @@ coherently across sessions without re-deriving context from scratch.
   pays the same 10 XP a manual drag pays and not twice on a repeat run; a
   double-click mid-sweep is a no-op).
 
+- Unit 6 (Limits: Gateway to Calculus) depth pass: added "Run zoom scan,"
+  an animated version of zooming in. Because `render()` already reads the
+  zoom slider's live value and shrinks the view accordingly, the
+  animation needed no separate drawing code at all — it just sets the
+  slider value and dispatches a real `input` event every frame, driving
+  the exact listener a manual drag would (render + the zoom-to-max XP
+  check together). The two sample points visibly converge on the limit
+  as the window narrows, rather than the student only comparing two
+  numbers before/after an instant jump. Covered by
+  `tests/unit6-zoom-scan.test.mjs`.
+- All three originally-flagged units (3, 4, 6) now have their depth
+  pass; that punch-list item is closed.
+- Fixed flaky animation tests (units 3/4/6): they were waiting a fixed
+  real-world sleep (e.g. 300ms) on the assumption that the RAF stub's
+  virtual animation clock — driven by a queue of `setImmediate`
+  callbacks — always flushes near-instantly. That assumption held most
+  of the time but not under system load, causing intermittent failures
+  in the full suite that didn't reproduce running a single file. Fixed
+  by polling for the actual completion signal (the button re-enabling)
+  via the existing `waitFor()` helper instead of guessing a delay, and
+  widened the real-timer margins in `xp-actions.test.mjs`'s multi-round
+  bonus tests for the same reason. Also set `--test-concurrency=1` in
+  the `npm test` script, since running many jsdom windows across
+  parallel test files was part of what made the timing tight in the
+  first place — this didn't fully fix it alone, but polling plus serial
+  execution together made 5/5 consecutive full-suite runs pass clean.
+
 **Known gaps / next up**
 
-- The same depth-pass treatment for Unit 6 (the last of the three
-  originally flagged) hasn't been done yet — a natural fit would be
-  animating the zoom-in itself (currently an instant slider jump) so the
-  "the function doesn't need to be defined at a to have a limit there"
-  idea is visible as the sample points visibly converge, rather than just
-  reading two numbers before/after.
-- `npm test` (41 tests) covers: smoke tests for all six units, Units 2/3/4's
-  animations, Unit 5's matrix fix, XP wiring across all six units, math
+- No further items are currently flagged. `npm test` (46 tests) covers:
+  smoke tests for all six units, animated depth-pass features for units
+  2/3/4/6, Unit 5's matrix fix, XP wiring across all six units, math
   correctness for units 3 and 6, the Mission Control dashboard, and the
   persistent XP badge.
