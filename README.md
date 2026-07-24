@@ -185,14 +185,29 @@ coherently across sessions without re-deriving context from scratch.
   reported scenario (three rapid-fire correct matches with no waiting
   between them).
 
+- Unit 3 (Cosmic Scales) depth pass: added "Run outbreak simulation," an
+  animated playback (a marker rides the growth curve from day 0 to day
+  30) alongside the existing instant "Submit estimate." The threshold
+  line highlights once the marker crosses it and the guess marker grows
+  once the marker passes that day, then the animation hands off to the
+  existing `checkEstimate()` for scoring — no new XP logic was added, so
+  all prior tests stayed valid unchanged. `render()` and the new
+  animation now share a `drawScene()` helper instead of duplicating the
+  curve/threshold/guess drawing code. Covered by
+  `tests/unit3-outbreak-sim.test.mjs` (controls lock during the
+  animation and unlock after; a double-click while running is a no-op;
+  both a correct and incorrect guess score identically whether run
+  through the animation or the instant check).
+
 **Known gaps / next up**
 
-- A Unit-2-style "depth pass" for Units 3, 4, 6 (richer failure states,
-  animated feedback, etc.) remains the one open item — deliberately not
-  started; see the note in the prior entry for the reasoning.
-- `npm test` (34 tests) covers: smoke tests for all six units, Unit 2's
-  simulator, Unit 5's matrix fix, XP wiring across all six units, math
-  correctness for units 3 and 6, the Mission Control dashboard (including
-  its own bfcache fix), and the persistent XP badge. Units 1, 4, 5 still
-  don't have core-math correctness tests (simple tolerance comparisons
-  rather than derived formulas, so lower priority than units 3/6 were).
+- The same depth-pass treatment for Units 4 and 6 (the other two
+  originally flagged) hasn't been done yet — Unit 3 was picked first
+  since exponential growth naturally supports an animated "watch it
+  happen" playback. Units 4 (circle/wave sync) and 6 (zoom-to-a-limit)
+  each have their own natural animation opportunities but weren't
+  started.
+- `npm test` (37 tests) covers: smoke tests for all six units, Unit 2's
+  simulator, Unit 3's outbreak animation, Unit 5's matrix fix, XP wiring
+  across all six units, math correctness for units 3 and 6, the Mission
+  Control dashboard, and the persistent XP badge.

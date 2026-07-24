@@ -20,6 +20,7 @@
   const xpBadge = document.getElementById("xp-badge");
   const checkBtn = document.getElementById("check-btn");
   const newTargetBtn = document.getElementById("new-target-btn");
+  const runBtn = document.getElementById("run-btn");
 
   let correct = 0;
   let threshold = 5000;
@@ -33,6 +34,40 @@
   }
 
   function N(t, n0, r) { return n0 * Math.pow(1 + r, t); }
+
+  // Shared by render() and runOutbreak(): draws the curve, threshold line,
+  // and guess marker. `dot` (if given) overlays a traveling marker for the
+  // animated run, and `guessReached` enlarges the guess point once the
+  // animation has passed it, so a passive playback still tracks both the
+  // student's estimate and the true crossing visually.
+  function drawScene(n0, r, guess, isLog, opts = {}) {
+    const maxVal = N(T_MAX, n0, r);
+    const yMax = isLog ? Math.max(1, Math.log10(maxVal || 1)) * 1.15 : Math.max(threshold * 1.3, maxVal * 1.15);
+    scene.setRange([0, T_MAX], [0, isLog ? Math.max(4, yMax) : yMax]);
+
+    scene.clear();
+    const fn = isLog
+      ? (t) => { const v = N(t, n0, r); return v > 0 ? Math.log10(v) : NaN; }
+      : (t) => N(t, n0, r);
+    scene.plotFunction(fn, { color: "#e8912d", lineWidth: 2.5 });
+
+    const thresholdY = isLog ? Math.log10(threshold) : threshold;
+    const crossed = !!opts.thresholdCrossed;
+    scene.plotVector(0, thresholdY, T_MAX, thresholdY, {
+      color: crossed ? "rgba(217,99,107,0.9)" : "rgba(217,99,107,0.5)",
+      lineWidth: crossed ? 2.5 : 1.5,
+    });
+
+    scene.plotPoint(guess, isLog ? Math.log10(Math.max(1, N(guess, n0, r))) : N(guess, n0, r), {
+      color: "#35c4b8",
+      radius: opts.guessReached ? 8 : 6,
+      label: "your estimate",
+    });
+
+    if (opts.dot) {
+      scene.plotPoint(opts.dot.t, isLog ? Math.log10(Math.max(1, opts.dot.v)) : opts.dot.v, { color: "#f3eee1", radius: 6 });
+    }
+  }
 
   function newThreshold() {
     threshold = [2000, 5000, 10000, 20000][Math.floor(Math.random() * 4)];
@@ -50,19 +85,7 @@
     outputs.guess.textContent = guess.toFixed(0);
 
     const isLog = toggle.checked;
-    const maxVal = N(T_MAX, n0, r);
-    const yMax = isLog ? Math.max(1, Math.log10(maxVal || 1)) * 1.15 : Math.max(threshold * 1.3, maxVal * 1.15);
-    scene.setRange([0, T_MAX], [0, isLog ? Math.max(4, yMax) : yMax]);
-
-    scene.clear();
-    const fn = isLog
-      ? (t) => { const v = N(t, n0, r); return v > 0 ? Math.log10(v) : NaN; }
-      : (t) => N(t, n0, r);
-    scene.plotFunction(fn, { color: "#e8912d", lineWidth: 2.5 });
-
-    const thresholdY = isLog ? Math.log10(threshold) : threshold;
-    scene.plotVector(0, thresholdY, T_MAX, thresholdY, { color: "rgba(217,99,107,0.5)", lineWidth: 1.5 });
-    scene.plotPoint(guess, isLog ? Math.log10(Math.max(1, N(guess, n0, r))) : N(guess, n0, r), { color: "#35c4b8", radius: 6, label: "your estimate" });
+    drawScene(n0, r, guess, isLog);
 
     readout.textContent = `N(t) = ${n0} · (1 + ${r.toFixed(2)})ᵗ    |    view: ${isLog ? "log₁₀(N)" : "linear"}    |    N(${guess.toFixed(0)}) ≈ ${Math.round(N(guess, n0, r)).toLocaleString()}`;
   }
@@ -93,6 +116,59 @@
     }
   }
 
+  let simRunning = false;
+
+  function setControlsDisabled(disabled) {
+    Object.values(sliders).forEach((s) => { s.disabled = disabled; });
+    toggle.disabled = disabled;
+    checkBtn.disabled = disabled;
+    newTargetBtn.disabled = disabled;
+    runBtn.disabled = disabled;
+  }
+
+  // A visual playback of the same math checkEstimate() already scores
+  // instantly — a marker rides the growth curve from day 0 to day 30,
+  // the threshold line highlights once the marker crosses it, and the
+  // guess marker grows once the marker passes that day too. Scoring
+  // itself is left entirely to checkEstimate() at the end, so this adds
+  // no new XP logic to reason about or retest.
+  function runOutbreak() {
+    if (simRunning) return;
+    simRunning = true;
+    setControlsDisabled(true);
+    status.textContent = "Simulating outbreak…";
+    status.className = "lab__status";
+
+    const n0 = parseFloat(sliders.n0.value);
+    const r = parseFloat(sliders.r.value);
+    const guess = parseFloat(sliders.guess.value);
+    const isLog = toggle.checked;
+    const trueDay = Math.log(threshold / n0) / Math.log(1 + r);
+
+    const durationMs = 3200;
+    let startTime = null;
+
+    function frame(ts) {
+      if (startTime === null) startTime = ts;
+      const t = Math.min(1, (ts - startTime) / durationMs);
+      const day = t * T_MAX;
+      const v = N(day, n0, r);
+      drawScene(n0, r, guess, isLog, {
+        dot: { t: day, v },
+        thresholdCrossed: day >= trueDay,
+        guessReached: day >= guess,
+      });
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        simRunning = false;
+        setControlsDisabled(false);
+        checkEstimate();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
   Object.values(sliders).forEach((s) => s.addEventListener("input", render));
   let logToggleAwarded = false;
   toggle.addEventListener("change", () => {
@@ -107,6 +183,7 @@
   });
   checkBtn.addEventListener("click", checkEstimate);
   newTargetBtn.addEventListener("click", () => { newThreshold(); render(); });
+  runBtn.addEventListener("click", runOutbreak);
 
   newThreshold();
   render();
