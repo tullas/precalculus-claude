@@ -9,6 +9,10 @@
 - `h` → horizontal shift (opposite sign of what you'd guess)
 - `k` → vertical shift (matches what you'd guess)
 
+**Real world:** This exact move set — stretch, squeeze, flip, slide — runs every time you crop or zoom a photo, resize a chart to fit a slide, or a sound engineer time-stretches and pitch-shifts a movie clip. `a` is like loudness/height, `b` is speed/width, `h` is when it starts, `k` is the baseline it sits on.
+
+**Try it for real:** A logo needs to be twice as tall (same width) and slid 3 units to the right, with no other changes. Which two knobs move, and by how much? (Careful — `h`'s sign is the trap.)
+
 **Your task:** Match the amber curve to the teal ghost curve using the four sliders.
 
 **XP**

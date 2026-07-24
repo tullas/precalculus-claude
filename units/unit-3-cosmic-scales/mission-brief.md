@@ -8,6 +8,10 @@
 - A log answers one question: what exponent hits this number? `log₂(8) = 3` because `2³ = 8`.
 - Plotting `log(N(t))` turns the hockey-stick into a straight line you can read and project.
 
+**Real world:** This is the model epidemiologists used to track early outbreak case counts, the model behind compound interest on a savings account, and the model a biologist uses to predict when a bacteria colony outgrows its dish. The log trick — turning a hockey stick into a straight line — is why outbreak dashboards and stock-price charts both offer a "log scale" toggle.
+
+**Try it for real:** A bacteria colony starts at 50 cells and grows 20% every hour. About how many hours until it passes 1,000 cells? (Same `N₀(1 + r)ᵗ` model as this lab — just solve for `t`.)
+
 **Your task:** Toggle log view. Estimate the day the case count crosses the threshold.
 
 **XP**

@@ -240,10 +240,43 @@ coherently across sessions without re-deriving context from scratch.
   first place — this didn't fully fix it alone, but polling plus serial
   execution together made 5/5 consecutive full-suite runs pass clean.
 
+- Real-world grounding added to all six mission briefs, per a direct
+  request to make the course more clearly connect to problems students
+  would recognize and know where to apply. Each brief now has two new
+  sections between "Key idea" and "Your task":
+  - **Real world:** names a genuine field/use case for that unit's math
+    (coaster engineers' root-checking software, epidemiology/compound
+    interest/bacterial growth for exponentials, satellite-dish and
+    cell-tower aiming for the circle/wave unit, the matrix math inside
+    every game engine and animated film, a speedometer as instantaneous
+    limits, photo/audio editing for function transformations).
+  - **Try it for real:** a short applied word problem using concrete,
+    realistic numbers (a Ferris wheel's radius and hub height; a
+    bacteria colony's growth rate; a car's mile-marker readings a
+    hundredth of an hour apart) that the same math in the lab directly
+    answers — meant to be workable with pencil and paper, independent of
+    the interactive lab itself.
+  - Content only — no lab mechanics changed. `tests/mission-briefs.test.mjs`
+    is new coverage entirely: it turned up that no prior test had ever
+    actually exercised a mission brief's markdown parse (`renderInto()`'s
+    `fetch()` doesn't work from a `file://` jsdom page, matching the
+    app's own documented file:// caveat, so it always silently fell into
+    the "could not load" branch) — worked around by calling
+    `TrajectoryMD.render()` directly via `window.eval()`, and used that
+    to confirm all six briefs — old and new content alike — parse
+    cleanly with no leaked markdown syntax.
+
 **Known gaps / next up**
 
-- No further items are currently flagged. `npm test` (46 tests) covers:
-  smoke tests for all six units, animated depth-pass features for units
-  2/3/4/6, Unit 5's matrix fix, XP wiring across all six units, math
-  correctness for units 3 and 6, the Mission Control dashboard, and the
-  persistent XP badge.
+- The real-world grounding is currently limited to the mission-brief
+  panel (read, not interactive). A deeper next step, if wanted: wiring
+  a unit's actual lab mechanics to one of these real scenarios directly
+  — e.g. Unit 3 could occasionally frame its outbreak numbers around a
+  real historical growth rate instead of a random threshold, or Unit 4
+  could offer a "Ferris wheel" reskin of the same circle/wave mechanic —
+  rather than the real-world content living only in the static brief.
+- `npm test` (48 tests) covers: smoke tests for all six units, animated
+  depth-pass features for units 2/3/4/6, Unit 5's matrix fix, XP wiring
+  across all six units, math correctness for units 3 and 6, the Mission
+  Control dashboard, the persistent XP badge, and now the mission-brief
+  markdown content itself.

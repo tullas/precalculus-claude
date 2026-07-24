@@ -9,6 +9,10 @@
 - A root that appears twice → the track *kisses* the ground instead of crossing it.
 - Rational tracks: **asymptote** = a wall the track approaches but never touches. **Hole** = one missing point, otherwise fine.
 
+**Real world:** Real coaster engineers run this exact root check — by computer, not by hand — before a single piece of track gets welded, because a missed double root in real life means a cart stalls mid-loop. The same math flags break-even points on a business plan and finds the load where a support beam's stress heads toward a vertical asymptote.
+
+**Try it for real:** A footbridge support is modeled by `f(x) = (x − 3)(x − 3)(x + 1)`. Without graphing it, where does the curve touch the ground without crossing, and where does it cross straight through?
+
 **Your task:** Certify the track shown. Spot every crossing, kiss, asymptote, and hole correctly.
 
 **XP**
