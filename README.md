@@ -266,6 +266,26 @@ coherently across sessions without re-deriving context from scratch.
     to confirm all six briefs — old and new content alike — parse
     cleanly with no leaked markdown syntax.
 
+- Fixed a real bug in Unit 6: the "Your limit estimate" slider — the one
+  slider the entire unit revolves around — updated a number next to
+  itself and nothing else. `render()` computed `guess` but never plotted
+  it anywhere; dragging it had zero visible effect on the canvas, which
+  is exactly the kind of thing that reads as broken to a student (a
+  report described it as "moving nothing in the graph... weird for kids
+  to understand"). Added `GraphEngine.plotLine()` (a plain, optionally
+  dashed line — distinct from the existing `plotVector()`, which always
+  draws an arrowhead and wasn't the right shape for a guide line) and
+  used it to draw the guess as a dashed horizontal line across the
+  visible window, labeled "your estimate," so a student can now visually
+  compare their guess against where the left/right sample points are
+  converging — not just compare two numbers.
+- Upgraded the test harness's canvas context stub from silent no-ops to
+  a lightweight call-recording spy (`ctx.__calls`, returned from
+  `loadUnit()`/`loadRoot()`), which is what made this fix actually
+  verifiable — a test can now assert a specific draw call happened
+  (e.g. a dashed line at a specific pixel height) instead of only
+  "nothing threw." Backward compatible; no existing test needed changes.
+
 **Known gaps / next up**
 
 - The real-world grounding is currently limited to the mission-brief
@@ -275,8 +295,8 @@ coherently across sessions without re-deriving context from scratch.
   real historical growth rate instead of a random threshold, or Unit 4
   could offer a "Ferris wheel" reskin of the same circle/wave mechanic —
   rather than the real-world content living only in the static brief.
-- `npm test` (48 tests) covers: smoke tests for all six units, animated
-  depth-pass features for units 2/3/4/6, Unit 5's matrix fix, XP wiring
-  across all six units, math correctness for units 3 and 6, the Mission
-  Control dashboard, the persistent XP badge, and now the mission-brief
-  markdown content itself.
+- `npm test` (50 tests) covers: smoke tests for all six units, animated
+  depth-pass features for units 2/3/4/6, Unit 5's matrix fix, Unit 6's
+  guess-visualization fix, XP wiring across all six units, math
+  correctness for units 3 and 6, the Mission Control dashboard, the
+  persistent XP badge, and the mission-brief markdown content itself.

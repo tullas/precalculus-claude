@@ -26,16 +26,20 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(__dirname, "..");
 
 function stubCanvasContext(window) {
-  const noop = () => {};
+  const calls = [];
+  function spy(name) {
+    return (...args) => { calls.push([name, args]); };
+  }
   const ctx = {
-    fillRect: noop, strokeRect: noop, clearRect: noop,
-    beginPath: noop, closePath: noop, moveTo: noop, lineTo: noop,
-    stroke: noop, fill: noop, arc: noop, fillText: noop, strokeText: noop,
-    setTransform: noop, save: noop, restore: noop, translate: noop,
-    scale: noop, rotate: noop,
+    fillRect: spy("fillRect"), strokeRect: spy("strokeRect"), clearRect: spy("clearRect"),
+    beginPath: spy("beginPath"), closePath: spy("closePath"), moveTo: spy("moveTo"), lineTo: spy("lineTo"),
+    stroke: spy("stroke"), fill: spy("fill"), arc: spy("arc"), fillText: spy("fillText"), strokeText: spy("strokeText"),
+    setTransform: spy("setTransform"), save: spy("save"), restore: spy("restore"), translate: spy("translate"),
+    scale: spy("scale"), rotate: spy("rotate"), setLineDash: spy("setLineDash"),
     // GraphEngine assigns these as plain properties, not methods:
     fillStyle: "", strokeStyle: "", lineWidth: 1, font: "",
   };
+  ctx.__calls = calls; // tests can inspect window.__ctx.__calls to assert specific draw calls happened
   window.HTMLCanvasElement.prototype.getContext = () => ctx;
   // jsdom's default layout is 0x0; give the canvas a nonzero size so
   // GraphEngine's pixel<->math conversion has something to divide by.
@@ -44,6 +48,7 @@ function stubCanvasContext(window) {
   window.HTMLCanvasElement.prototype.getBoundingClientRect = () => ({
     width: 600, height: 400, top: 0, left: 0, right: 600, bottom: 400,
   });
+  return ctx;
 }
 
 // The pages pull Google Fonts over the network; letting that request
@@ -94,6 +99,7 @@ async function loadPage(file, baseUrl, label) {
     errors.push(e);
   });
 
+  let ctx = null;
   const dom = await JSDOM.fromFile(file, {
     url: baseUrl,
     resources: { interceptors: [blockNonLocal] },
@@ -101,7 +107,7 @@ async function loadPage(file, baseUrl, label) {
     pretendToBeVisual: true,
     virtualConsole,
     beforeParse(window) {
-      stubCanvasContext(window);
+      ctx = stubCanvasContext(window);
       stubAnimationFrame(window);
       stubLocalStorage(window);
       window.addEventListener("error", (e) => errors.push(e.error || e.message));
@@ -116,7 +122,7 @@ async function loadPage(file, baseUrl, label) {
     });
   }
 
-  return { dom, window: dom.window, document: dom.window.document, errors };
+  return { dom, window: dom.window, document: dom.window.document, errors, ctx };
 }
 
 /**

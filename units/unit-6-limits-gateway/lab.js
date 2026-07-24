@@ -51,7 +51,8 @@
     guessOut.textContent = guess.toFixed(2);
 
     const a = current.a;
-    scene.setRange([a - Math.max(w * 6, 0.5), a + Math.max(w * 6, 0.5)], [current.limit - 4, current.limit + 4]);
+    const xMin = a - Math.max(w * 6, 0.5), xMax = a + Math.max(w * 6, 0.5);
+    scene.setRange([xMin, xMax], [current.limit - 4, current.limit + 4]);
     scene.clear();
     scene.plotFunction(current.fn, { color: "#e8912d", lineWidth: 2.5 });
     scene.plotPoint(a, current.limit, { open: true, color: "#d9636b", radius: 6, label: "ERROR here" });
@@ -60,6 +61,14 @@
     const rightVal = current.fn(a + w);
     scene.plotPoint(a - w, leftVal, { color: "#35c4b8", radius: 4, label: "left" });
     scene.plotPoint(a + w, rightVal, { color: "#35c4b8", radius: 4, label: "right" });
+
+    // The slider is a *guess at a y-value*, not tied to any single x, so
+    // it's drawn as a dashed guide line across the whole visible window
+    // rather than a point — sliding it should visibly show whether that
+    // horizontal line sits where the curve (and the left/right samples)
+    // are actually converging.
+    scene.plotLine(xMin, guess, xMax, guess, { color: "#35c4b8", lineWidth: 2, dashed: true });
+    scene.plotPoint(xMax, guess, { radius: 0, color: "#35c4b8", label: "your estimate" });
 
     readout.textContent = `f(${(a - w).toFixed(4)}) ≈ ${leftVal.toFixed(4)}    f(${(a + w).toFixed(4)}) ≈ ${rightVal.toFixed(4)}    |    sensor: ${current.label}`;
   }

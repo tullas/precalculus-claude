@@ -166,6 +166,22 @@ const GraphEngine = (() => {
         draw();
       },
 
+      plotLine(x1, y1, x2, y2, opts = {}) {
+        queue.push(() => {
+          const [px1, py1] = toPixel(x1, y1);
+          const [px2, py2] = toPixel(x2, y2);
+          ctx.strokeStyle = opts.color || "#d9636b";
+          ctx.lineWidth = opts.lineWidth || 2;
+          if (opts.dashed) ctx.setLineDash(opts.dashPattern || [7, 5]);
+          ctx.beginPath();
+          ctx.moveTo(px1, py1);
+          ctx.lineTo(px2, py2);
+          ctx.stroke();
+          if (opts.dashed) ctx.setLineDash([]); // don't leak the dash into later draws
+        });
+        draw();
+      },
+
       plotVector(x1, y1, x2, y2, opts = {}) {
         queue.push(() => {
           const [px1, py1] = toPixel(x1, y1);
