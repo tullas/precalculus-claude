@@ -199,15 +199,29 @@ coherently across sessions without re-deriving context from scratch.
   both a correct and incorrect guess score identically whether run
   through the animation or the instant check).
 
+- Unit 4 (Cycles and Waves) depth pass: added "Sweep full revolution," an
+  animated playback of the dish rotating through a full circle while the
+  unrolled sine wave is progressively traced out (revealed only up to
+  the current angle, rather than drawn whole and just dragging a dot
+  across it — makes the "unrolling the circle into a wave" idea visible
+  as it happens instead of a fait accompli). At the end, the animation
+  lands the real slider at the full-circle end and dispatches a genuine
+  `input` event, so the existing revolution-XP handler is the only place
+  that logic lives — the animation drives the same control a manual drag
+  would rather than duplicating the award. Covered by
+  `tests/unit4-sweep.test.mjs` (controls lock/unlock correctly; the sweep
+  pays the same 10 XP a manual drag pays and not twice on a repeat run; a
+  double-click mid-sweep is a no-op).
+
 **Known gaps / next up**
 
-- The same depth-pass treatment for Units 4 and 6 (the other two
-  originally flagged) hasn't been done yet — Unit 3 was picked first
-  since exponential growth naturally supports an animated "watch it
-  happen" playback. Units 4 (circle/wave sync) and 6 (zoom-to-a-limit)
-  each have their own natural animation opportunities but weren't
-  started.
-- `npm test` (37 tests) covers: smoke tests for all six units, Unit 2's
-  simulator, Unit 3's outbreak animation, Unit 5's matrix fix, XP wiring
-  across all six units, math correctness for units 3 and 6, the Mission
-  Control dashboard, and the persistent XP badge.
+- The same depth-pass treatment for Unit 6 (the last of the three
+  originally flagged) hasn't been done yet — a natural fit would be
+  animating the zoom-in itself (currently an instant slider jump) so the
+  "the function doesn't need to be defined at a to have a limit there"
+  idea is visible as the sample points visibly converge, rather than just
+  reading two numbers before/after.
+- `npm test` (41 tests) covers: smoke tests for all six units, Units 2/3/4's
+  animations, Unit 5's matrix fix, XP wiring across all six units, math
+  correctness for units 3 and 6, the Mission Control dashboard, and the
+  persistent XP badge.

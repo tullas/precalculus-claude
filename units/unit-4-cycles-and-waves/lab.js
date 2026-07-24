@@ -11,6 +11,7 @@
   const xpBadge = document.getElementById("xp-badge");
   const checkBtn = document.getElementById("check-btn");
   const newTargetBtn = document.getElementById("new-target-btn");
+  const sweepBtn = document.getElementById("sweep-btn");
 
   const CX = -4, CY = 0, R = 1.4;
   let matches = 0;
@@ -111,6 +112,89 @@
     }
   }
 
+  // A frame of the animated sweep: same drawing as render(), except the
+  // wave is revealed only up to the current angle (x in [0, theta]) rather
+  // than drawn whole, so the sweep visibly "unrolls" the circle into the
+  // wave point by point instead of just dragging a dot across an
+  // already-finished curve.
+  function drawSweepFrame(theta) {
+    thetaOut.textContent = niceAngleLabel(theta);
+    scene.clear();
+
+    scene.plotFunction((x) => {
+      const dx = (x - CX) / R;
+      if (Math.abs(dx) > 1) return NaN;
+      return CY + R * Math.sqrt(1 - dx * dx);
+    }, { color: "rgba(154,160,190,0.5)", lineWidth: 1.5 });
+    scene.plotFunction((x) => {
+      const dx = (x - CX) / R;
+      if (Math.abs(dx) > 1) return NaN;
+      return CY - R * Math.sqrt(1 - dx * dx);
+    }, { color: "rgba(154,160,190,0.5)", lineWidth: 1.5 });
+
+    const px = CX + R * Math.cos(theta);
+    const py = CY + R * Math.sin(theta);
+    scene.plotVector(CX, CY, px, py, { color: "#e8912d" });
+    scene.plotPoint(px, py, { color: "#e8912d", radius: 6 });
+
+    const waveOrigin = 0;
+    scene.plotFunction((x) => {
+      if (x < waveOrigin || x > waveOrigin + theta) return NaN;
+      return R * Math.sin(x - waveOrigin);
+    }, { color: "#35c4b8", lineWidth: 2 });
+
+    const wavePx = waveOrigin + theta;
+    const wavePy = R * Math.sin(theta);
+    scene.plotPoint(wavePx, wavePy, { color: "#e8912d", radius: 6 });
+    scene.plotVector(px, py, wavePx, wavePy, { color: "rgba(232,145,45,0.25)", lineWidth: 1 });
+
+    readout.textContent = `θ = ${niceAngleLabel(theta)}    |    (cos θ, sin θ) ≈ (${Math.cos(theta).toFixed(2)}, ${Math.sin(theta).toFixed(2)})`;
+  }
+
+  let sweepRunning = false;
+
+  function setControlsDisabled(disabled) {
+    thetaSlider.disabled = disabled;
+    checkBtn.disabled = disabled;
+    newTargetBtn.disabled = disabled;
+    sweepBtn.disabled = disabled;
+  }
+
+  function runSweep() {
+    if (sweepRunning) return;
+    sweepRunning = true;
+    setControlsDisabled(true);
+    status.textContent = "Sweeping through one full revolution…";
+    status.className = "lab__status";
+
+    const durationMs = 4000;
+    let startTime = null;
+
+    function frame(ts) {
+      if (startTime === null) startTime = ts;
+      const t = Math.min(1, (ts - startTime) / durationMs);
+      drawSweepFrame(t * THETA_MAX);
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        sweepRunning = false;
+        setControlsDisabled(false);
+        // Land the real slider at the full-circle end and dispatch a real
+        // 'input' event, so the existing revolution-XP handler below is
+        // the only place that logic lives — the animation doesn't award
+        // XP itself, it just drives the same control a manual drag would.
+        const alreadyAwarded = revolutionAwarded;
+        thetaSlider.value = String(THETA_MAX);
+        thetaSlider.dispatchEvent(new Event("input", { bubbles: true }));
+        if (alreadyAwarded) {
+          status.textContent = "Sweep complete.";
+          status.className = "lab__status";
+        }
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
   thetaSlider.addEventListener("input", () => {
     render();
     const theta = parseFloat(thetaSlider.value);
@@ -124,6 +208,7 @@
   });
   checkBtn.addEventListener("click", checkMatch);
   newTargetBtn.addEventListener("click", () => { newTarget(); render(); });
+  sweepBtn.addEventListener("click", runSweep);
 
   newTarget();
   render();
